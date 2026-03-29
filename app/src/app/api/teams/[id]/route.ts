@@ -35,14 +35,15 @@ export async function GET(
   }
 
   // Check membership
-  const isMember = team.members.some((m) => m.userId === userId);
+  const isMember = team.members.some((m: { userId: string }) => m.userId === userId);
   if (!isMember) {
     return NextResponse.json({ error: "Kein Zugriff" }, { status: 403 });
   }
 
   // Get weight data for each member
   const memberProgress = await Promise.all(
-    team.members.map(async (member) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    team.members.map(async (member: any) => {
       const privacy = member.user.privacySettings;
       const isMe = member.userId === userId;
       const showWeight = isMe || privacy?.weightVisible !== false;
@@ -84,7 +85,7 @@ export async function GET(
         },
         select: { calories: true },
       });
-      const totalCalories = activities.reduce((s, a) => s + a.calories, 0);
+      const totalCalories = activities.reduce((s: number, a: { calories: number }) => s + a.calories, 0);
 
       return {
         userId: member.userId,
@@ -100,12 +101,14 @@ export async function GET(
     })
   );
 
+  type MP = { weightLoss: number | null; totalCalories: number | null; [key: string]: unknown };
+
   // Sort by weight loss (descending)
-  memberProgress.sort((a, b) => (b.weightLoss || 0) - (a.weightLoss || 0));
+  memberProgress.sort((a: MP, b: MP) => (b.weightLoss || 0) - (a.weightLoss || 0));
 
   // Calculate team totals
-  const teamTotalLoss = memberProgress.reduce((s, m) => s + (m.weightLoss || 0), 0);
-  const teamTotalCalories = memberProgress.reduce((s, m) => s + (m.totalCalories || 0), 0);
+  const teamTotalLoss = memberProgress.reduce((s: number, m: MP) => s + (m.weightLoss || 0), 0);
+  const teamTotalCalories = memberProgress.reduce((s: number, m: MP) => s + (m.totalCalories || 0), 0);
 
   return NextResponse.json({
     team: {

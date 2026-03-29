@@ -70,7 +70,8 @@ export async function GET() {
     },
   });
 
-  const teams = memberships.map((m) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const teams = memberships.map((m: any) => ({
     ...m.team,
     myRole: m.role,
   }));

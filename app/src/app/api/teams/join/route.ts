@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   }
 
   // Check if already a member
-  const existing = team.members.find((m) => m.userId === userId);
+  const existing = team.members.find((m: { userId: string }) => m.userId === userId);
   if (existing) {
     return NextResponse.json({ error: "Du bist bereits Mitglied" }, { status: 409 });
   }

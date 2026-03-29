@@ -14,7 +14,7 @@ export async function GET() {
     orderBy: { date: "desc" },
   });
 
-  const dates = entries.map((e) => e.date);
+  const dates = entries.map((e: { date: string }) => e.date);
 
   // Calculate streak: count consecutive days from today backwards
   let streak = 0;
