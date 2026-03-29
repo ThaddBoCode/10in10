@@ -1,0 +1,28 @@
+[data-theme="brutal"] {
+  --primary: #5B2EFF;
+  --primary-light: #7C5CFF;
+  --primary-dark: #4420CC;
+  --accent: #FF5C5C;
+  --accent-light: #FF8A8A;
+  --success: #00C853;
+  --warning: #FFD600;
+  --danger: #FF1744;
+  --bg: #E8E4DE;
+  --bg-image: none;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F5F5F0;
+  --bg-input: #F0ECE6;
+  --text: #1A1A1A;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --border: #1A1A1A;
+  --card-radius: 12px;
+  --card-shadow: 4px 4px 0px #1A1A1A;
+  --card-blur: none;
+  --card-border-width: 2px;
+  --gradient-primary: #5B2EFF;
+  --gradient-accent: #FF5C5C;
+  --glow-primary: none;
+  --glow-accent: none;
+  --tab-bg: #FFFFFF;
+}

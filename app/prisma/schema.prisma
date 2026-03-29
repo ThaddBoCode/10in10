@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  pinHash       String
+  height        Float?
+  age           Int?
+  gender        String?
+  activityLevel String   @default("light")
+  createdAt     DateTime @default(now())
+
+  goals            Goal[]
+  weightEntries    WeightEntry[]
+  activities       Activity[]
+  teamMemberships  TeamMember[]
+  teamsCreated     Team[]            @relation("TeamCreator")
+  privacySettings  PrivacySettings?
+  stravaConnection StravaConnection?
+  preferences      UserPreferences?
+  progressPhotos   ProgressPhoto[]
+  dailyCalories    DailyCalories[]
+}
+
+model UserPreferences {
+  id      String @id @default(cuid())
+  userId  String @unique
+  theme   String @default("glass")
+  fontSet String @default("prometo")
+  locale  String @default("de")
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id           String   @id @default(cuid())
+  userId       String
+  startWeight  Float
+  targetWeight Float
+  startDate    DateTime
+  endDate      DateTime
+  weeks        Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WeightEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  weight    Float
+  date      String
+  time      String
+  isLowest  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model Activity {
+  id           String   @id @default(cuid())
+  userId       String
+  stravaId     String?
+  type         String
+  name         String
+  date         DateTime
+  duration     Int
+  distance     Float?
+  calories     Int
+  avgHeartRate Int?
+  pace         Float?
+  source       String   @default("manual")
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  inviteCode  String       @unique
+  targetKg    Float
+  startDate   DateTime
+  endDate     DateTime
+  weeks       Int
+  createdById String
+  createdAt   DateTime     @default(now())
+  createdBy   User         @relation("TeamCreator", fields: [createdById], references: [id])
+  members     TeamMember[]
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  teamId   String
+  userId   String
+  role     String   @default("member")
+  joinedAt DateTime @default(now())
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model PrivacySettings {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  weightVisible     Boolean @default(true)
+  caloriesVisible   Boolean @default(true)
+  activitiesVisible Boolean @default(false)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StravaConnection {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  stravaUserId String
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProgressPhoto {
+  id         String   @id @default(cuid())
+  userId     String
+  weekNumber Int
+  photoPath  String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyCalories {
+  id               String @id @default(cuid())
+  userId           String
+  date             String
+  bmr              Int
+  activityCalories Int    @default(0)
+  trainingCalories Int    @default(0)
+  totalCalories    Int
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}

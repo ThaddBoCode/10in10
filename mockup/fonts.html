@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>10in10 - Font Preview</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @font-face {
+            font-family: 'ZF Prometo';
+            src: url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Lt.woff2') format('woff2'),
+                 url('../Font/Font/Webfonts/WOFF/ZFPrometo_W_Lt.woff') format('woff');
+            font-weight: 300;
+        }
+        @font-face {
+            font-family: 'ZF Prometo';
+            src: url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Md.woff2') format('woff2'),
+                 url('../Font/Font/Webfonts/WOFF/ZFPrometo_W_Md.woff') format('woff');
+            font-weight: 500;
+        }
+
+        /* All font candidates */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Satoshi:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+        /* Font Sets - each defines heading, body, numbers */
+        [data-font="prometo"] {
+            --fh: 'ZF Prometo', sans-serif;
+            --fb: 'ZF Prometo', sans-serif;
+            --fn: 'ZF Prometo', sans-serif;
+            --fw-h: 500; --fw-b: 300; --fw-n: 500;
+            --ls-h: 0.5px; --ls-n: 0px;
+        }
+        [data-font="outfit"] {
+            --fh: 'Outfit', sans-serif;
+            --fb: 'Outfit', sans-serif;
+            --fn: 'Outfit', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.5px;
+        }
+        [data-font="space-grotesk"] {
+            --fh: 'Space Grotesk', sans-serif;
+            --fb: 'Space Grotesk', sans-serif;
+            --fn: 'Space Grotesk', sans-serif;
+            --fw-h: 700; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -1px;
+        }
+        [data-font="jakarta"] {
+            --fh: 'Plus Jakarta Sans', sans-serif;
+            --fb: 'Plus Jakarta Sans', sans-serif;
+            --fn: 'Plus Jakarta Sans', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.3px; --ls-n: -0.3px;
+        }
+        [data-font="syne"] {
+            --fh: 'Syne', sans-serif;
+            --fb: 'Inter', sans-serif;
+            --fn: 'Syne', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.5px;
+        }
+        [data-font="bricolage"] {
+            --fh: 'Bricolage Grotesque', sans-serif;
+            --fb: 'Bricolage Grotesque', sans-serif;
+            --fn: 'Bricolage Grotesque', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.5px;
+        }
+        [data-font="manrope"] {
+            --fh: 'Manrope', sans-serif;
+            --fb: 'Manrope', sans-serif;
+            --fn: 'Manrope', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.3px;
+        }
+        [data-font="dm-sans"] {
+            --fh: 'DM Sans', sans-serif;
+            --fb: 'DM Sans', sans-serif;
+            --fn: 'DM Sans', sans-serif;
+            --fw-h: 700; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.3px; --ls-n: -0.3px;
+        }
+        [data-font="rubik"] {
+            --fh: 'Rubik', sans-serif;
+            --fb: 'Rubik', sans-serif;
+            --fn: 'Rubik', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.3px; --ls-n: -0.3px;
+        }
+        [data-font="figtree"] {
+            --fh: 'Figtree', sans-serif;
+            --fb: 'Figtree', sans-serif;
+            --fn: 'Figtree', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 800;
+            --ls-h: -0.3px; --ls-n: -0.5px;
+        }
+        [data-font="albert"] {
+            --fh: 'Albert Sans', sans-serif;
+            --fb: 'Albert Sans', sans-serif;
+            --fn: 'Albert Sans', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 800;
+            --ls-h: -0.3px; --ls-n: -0.5px;
+        }
+        [data-font="exo2"] {
+            --fh: 'Exo 2', sans-serif;
+            --fb: 'Exo 2', sans-serif;
+            --fn: 'Exo 2', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 800;
+            --ls-h: 0px; --ls-n: -0.5px;
+        }
+        [data-font="barlow"] {
+            --fh: 'Barlow', sans-serif;
+            --fb: 'Barlow', sans-serif;
+            --fn: 'Barlow', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.3px; --ls-n: -0.5px;
+        }
+        [data-font="urbanist"] {
+            --fh: 'Urbanist', sans-serif;
+            --fb: 'Urbanist', sans-serif;
+            --fn: 'Urbanist', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 800;
+            --ls-h: -0.3px; --ls-n: -0.5px;
+        }
+        [data-font="rajdhani"] {
+            --fh: 'Rajdhani', sans-serif;
+            --fb: 'Rajdhani', sans-serif;
+            --fn: 'Rajdhani', sans-serif;
+            --fw-h: 700; --fw-b: 500; --fw-n: 700;
+            --ls-h: 1px; --ls-n: 0px;
+        }
+        [data-font="orbitron"] {
+            --fh: 'Orbitron', sans-serif;
+            --fb: 'Inter', sans-serif;
+            --fn: 'Orbitron', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: 1px; --ls-n: 0px;
+        }
+        [data-font="nunito"] {
+            --fh: 'Nunito', sans-serif;
+            --fb: 'Nunito', sans-serif;
+            --fn: 'Nunito', sans-serif;
+            --fw-h: 900; --fw-b: 400; --fw-n: 800;
+            --ls-h: -0.3px; --ls-n: -0.3px;
+        }
+        [data-font="poppins"] {
+            --fh: 'Poppins', sans-serif;
+            --fb: 'Poppins', sans-serif;
+            --fn: 'Poppins', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.3px;
+        }
+        [data-font="montserrat"] {
+            --fh: 'Montserrat', sans-serif;
+            --fb: 'Montserrat', sans-serif;
+            --fn: 'Montserrat', sans-serif;
+            --fw-h: 800; --fw-b: 400; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.3px;
+        }
+        /* Mix combos */
+        [data-font="syne-prometo"] {
+            --fh: 'Syne', sans-serif;
+            --fb: 'ZF Prometo', sans-serif;
+            --fn: 'Syne', sans-serif;
+            --fw-h: 800; --fw-b: 300; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.5px;
+        }
+        [data-font="bricolage-prometo"] {
+            --fh: 'Bricolage Grotesque', sans-serif;
+            --fb: 'ZF Prometo', sans-serif;
+            --fn: 'Bricolage Grotesque', sans-serif;
+            --fw-h: 800; --fw-b: 300; --fw-n: 700;
+            --ls-h: -0.5px; --ls-n: -0.5px;
+        }
+        [data-font="jakarta-mono"] {
+            --fh: 'Plus Jakarta Sans', sans-serif;
+            --fb: 'Plus Jakarta Sans', sans-serif;
+            --fn: 'JetBrains Mono', monospace;
+            --fw-h: 800; --fw-b: 400; --fw-n: 600;
+            --ls-h: -0.3px; --ls-n: -1px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #050505; color: #fff; font-family: 'Inter', sans-serif; }
+
+        /* Selectors */
+        .bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+            background: #0A0A0A; border-bottom: 1px solid #222;
+        }
+        .bar-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; overflow-x: auto;
+        }
+        .bar-row::-webkit-scrollbar { display: none; }
+        .bar-row:first-child { border-bottom: 1px solid #1a1a1a; }
+        .bar-label {
+            font-size: 10px; font-weight: 700; color: #444;
+            text-transform: uppercase; letter-spacing: 1px;
+            white-space: nowrap; min-width: 50px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .bar-btn {
+            padding: 6px 12px; border-radius: 6px;
+            border: 1px solid #222; background: #111;
+            color: #666; font-size: 11px; font-weight: 500;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .bar-btn.active { border-color: #818CF8; color: #fff; background: #1a1a2a; }
+        .bar-btn:hover:not(.active) { border-color: #444; color: #aaa; }
+        .cat-label {
+            font-size: 9px; color: #333; padding: 0 4px;
+            white-space: nowrap; font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Phone */
+        .phone-frame {
+            width: 390px; height: 844px;
+            margin: 110px auto 20px;
+            border-radius: 40px; border: 3px solid #222;
+            overflow: hidden; position: relative;
+        }
+        .notch { width: 160px; height: 34px; background: #000; border-radius: 0 0 20px 20px; margin: 0 auto; z-index: 100; position: relative; }
+        .screen {
+            height: calc(100% - 34px); overflow-y: auto; padding-bottom: 90px;
+            background: #0C0C1D;
+            background-image: linear-gradient(135deg, #0C0C1D 0%, #1a0a2e 30%, #0C0C1D 50%, #0a1628 70%, #0C0C1D 100%);
+        }
+        .screen::-webkit-scrollbar { display: none; }
+
+        /* Glass theme base (always) */
+        .card-style {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        /* Content uses font vars */
+        .dashboard-header { padding: 16px 20px 0; }
+        .greeting { font-size: 14px; color: rgba(255,255,255,0.6); font-family: var(--fb); font-weight: var(--fw-b); }
+        .greeting-name {
+            font-size: 28px; font-weight: var(--fw-h); color: #fff;
+            font-family: var(--fh); letter-spacing: var(--ls-h);
+            margin-top: 2px;
+        }
+
+        .banner {
+            margin: 16px 20px; padding: 22px;
+            background: linear-gradient(135deg, rgba(129,140,248,0.45), rgba(52,211,153,0.3));
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.12);
+            position: relative; overflow: hidden;
+        }
+        .banner::after {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 130px; height: 130px;
+            background: rgba(255,255,255,0.06); border-radius: 50%;
+        }
+        .banner-label {
+            font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.7);
+            text-transform: uppercase; letter-spacing: 2px;
+            font-family: var(--fb); position: relative;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .banner-big {
+            font-size: 44px; font-weight: var(--fw-n); color: #fff;
+            font-family: var(--fn); letter-spacing: var(--ls-n);
+            margin: 6px 0; position: relative; line-height: 1.1;
+        }
+        .banner-sub {
+            font-size: 13px; color: rgba(255,255,255,0.75);
+            font-family: var(--fb); font-weight: var(--fw-b); position: relative;
+        }
+        .prog { height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 14px; overflow: hidden; position: relative; }
+        .prog-fill { height: 100%; width: 35%; background: rgba(255,255,255,0.85); border-radius: 3px; }
+
+        /* Kurs card */
+        .kurs {
+            margin: 14px 20px; padding: 20px;
+        }
+        .kurs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .kurs-title {
+            font-size: 16px; font-weight: var(--fw-h); color: #fff;
+            font-family: var(--fh); letter-spacing: var(--ls-h);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .badge {
+            padding: 4px 12px; border-radius: 8px; font-size: 11px;
+            font-weight: 600; font-family: var(--fb);
+            background: rgba(52,211,153,0.15); color: #34D399;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .kurs-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+        .kn { text-align: center; }
+        .kn-label { font-size: 9px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--fb); }
+        .kn-val { font-size: 22px; font-weight: var(--fw-n); color: #fff; font-family: var(--fn); letter-spacing: var(--ls-n); margin-top: 4px; }
+
+        .tip {
+            padding: 14px; border-radius: 14px;
+            background: rgba(129,140,248,0.08);
+            border: 1px solid rgba(129,140,248,0.15);
+        }
+        .tip-title {
+            font-size: 11px; font-weight: var(--fw-h); color: #A5B4FC;
+            font-family: var(--fh); text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+        }
+        .tip-r { display: flex; justify-content: space-between; padding: 4px 0; }
+        .tip-rl { font-size: 13px; color: rgba(255,255,255,0.6); font-family: var(--fb); font-weight: var(--fw-b); }
+        .tip-rv { font-size: 14px; font-weight: var(--fw-n); font-family: var(--fn); color: #fff; }
+
+        /* Streak */
+        .streak {
+            margin: 12px 20px; padding: 14px 18px;
+            background: rgba(251,191,36,0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid rgba(251,191,36,0.12);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .streak-iw {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: linear-gradient(135deg, #FB7185, #FBBF24);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .streak-n { font-size: 26px; font-weight: var(--fw-n); color: #fff; font-family: var(--fn); letter-spacing: var(--ls-n); }
+        .streak-l { font-size: 10px; color: rgba(255,255,255,0.55); font-family: var(--fb); }
+        .streak-days { display: flex; gap: 4px; margin-left: auto; }
+        .sd {
+            width: 20px; height: 20px; border-radius: 5px;
+            background: rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: rgba(255,255,255,0.3); font-weight: 600; font-family: var(--fb);
+        }
+        .sd.ok { background: #34D399; color: #fff; }
+        .sd.now { border: 2px solid #818CF8; background: transparent; }
+
+        /* Stats */
+        .sg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; margin-bottom: 12px; }
+        .st {
+            padding: 16px; cursor: pointer; transition: transform 0.2s;
+        }
+        .st:hover { transform: translateY(-2px); }
+        .st-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .st-iw {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .st-val { font-size: 26px; font-weight: var(--fw-n); color: #fff; font-family: var(--fn); letter-spacing: var(--ls-n); }
+        .st-lbl { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 3px; font-family: var(--fb); font-weight: var(--fw-b); }
+        .st-chg {
+            font-size: 10px; font-weight: 600; margin-top: 8px;
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 3px 8px; border-radius: 6px;
+            background: rgba(52,211,153,0.12); color: #34D399;
+            font-family: var(--fb);
+        }
+
+        /* Section */
+        .sh { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 10px; }
+        .sh-t { font-size: 18px; font-weight: var(--fw-h); color: #fff; font-family: var(--fh); letter-spacing: var(--ls-h); }
+        .sh-l { font-size: 12px; color: #A5B4FC; font-family: var(--fb); display: flex; align-items: center; gap: 4px; }
+
+        /* Activity */
+        .act { margin: 0 20px 10px; padding: 14px 18px; }
+        .act-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .act-iw {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .act-name { font-size: 14px; font-weight: var(--fw-h); color: #fff; font-family: var(--fh); }
+        .act-date { font-size: 11px; color: rgba(255,255,255,0.5); font-family: var(--fb); display: flex; align-items: center; gap: 4px; }
+        .act-kcal { font-size: 18px; font-weight: var(--fw-n); color: #34D399; font-family: var(--fn); letter-spacing: var(--ls-n); }
+        .act-stats { display: flex; gap: 16px; }
+        .act-st { font-size: 11px; color: rgba(255,255,255,0.5); font-family: var(--fb); display: flex; align-items: center; gap: 3px; }
+        .act-st strong { color: #fff; font-weight: 700; }
+
+        /* Tab Bar */
+        .tab-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 85px; background: rgba(12,12,29,0.88);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around;
+            align-items: flex-start; padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06); z-index: 100;
+        }
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; padding: 4px 12px;
+        }
+        .tab-item.active .ti { color: #818CF8; }
+        .tab-item.active .tab-label { color: #818CF8; }
+        .ti { color: rgba(255,255,255,0.3); }
+        .tab-label { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 500; font-family: var(--fb); }
+        .tab-item-center { margin-top: -22px; }
+        .tab-item-center .ti {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #818CF8, #34D399);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white !important;
+            box-shadow: 0 4px 20px rgba(129,140,248,0.4);
+        }
+
+        /* Font preview label */
+        .font-label {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #111; border: 1px solid #333; border-radius: 10px;
+            padding: 8px 20px; z-index: 999;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; color: #888;
+            text-align: center; white-space: nowrap;
+        }
+        .font-label strong { color: #fff; }
+
+        @media (min-width: 800px) {
+            .phone-frame { width: 100%; max-width: 100%; height: 100vh; margin-top: 100px; border-radius: 0; border: none; }
+            .notch { display: none; }
+            .screen { max-width: 500px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-row">
+        <span class="bar-label">Font:</span>
+        <span class="cat-label">| Clean:</span>
+        <button class="bar-btn active" onclick="setFont('outfit')">Outfit</button>
+        <button class="bar-btn" onclick="setFont('space-grotesk')">Space Grotesk</button>
+        <button class="bar-btn" onclick="setFont('jakarta')">Jakarta Sans</button>
+        <button class="bar-btn" onclick="setFont('dm-sans')">DM Sans</button>
+        <button class="bar-btn" onclick="setFont('manrope')">Manrope</button>
+        <button class="bar-btn" onclick="setFont('figtree')">Figtree</button>
+        <button class="bar-btn" onclick="setFont('albert')">Albert Sans</button>
+        <span class="cat-label">| Rund:</span>
+        <button class="bar-btn" onclick="setFont('nunito')">Nunito</button>
+        <button class="bar-btn" onclick="setFont('rubik')">Rubik</button>
+        <button class="bar-btn" onclick="setFont('poppins')">Poppins</button>
+    </div>
+    <div class="bar-row">
+        <span class="bar-label" style="min-width:50px;">&nbsp;</span>
+        <span class="cat-label">| Bold:</span>
+        <button class="bar-btn" onclick="setFont('syne')">Syne</button>
+        <button class="bar-btn" onclick="setFont('bricolage')">Bricolage</button>
+        <button class="bar-btn" onclick="setFont('barlow')">Barlow</button>
+        <button class="bar-btn" onclick="setFont('urbanist')">Urbanist</button>
+        <button class="bar-btn" onclick="setFont('montserrat')">Montserrat</button>
+        <span class="cat-label">| Tech:</span>
+        <button class="bar-btn" onclick="setFont('exo2')">Exo 2</button>
+        <button class="bar-btn" onclick="setFont('rajdhani')">Rajdhani</button>
+        <button class="bar-btn" onclick="setFont('orbitron')">Orbitron</button>
+        <span class="cat-label">| Dein Font:</span>
+        <button class="bar-btn" onclick="setFont('prometo')">ZF Prometo</button>
+        <span class="cat-label">| Mix:</span>
+        <button class="bar-btn" onclick="setFont('syne-prometo')">Syne + Prometo</button>
+        <button class="bar-btn" onclick="setFont('bricolage-prometo')">Bricolage + Prometo</button>
+        <button class="bar-btn" onclick="setFont('jakarta-mono')">Jakarta + Mono</button>
+    </div>
+</div>
+
+<div class="font-label" id="fontInfo">Heading: <strong>Outfit</strong> &bull; Body: <strong>Outfit</strong> &bull; Numbers: <strong>Outfit</strong></div>
+
+<div class="phone-frame" data-font="outfit" id="pf">
+    <div class="notch"></div>
+    <div class="screen">
+
+        <div class="dashboard-header">
+            <div class="greeting">Guten Morgen,</div>
+            <div class="greeting-name">Max</div>
+        </div>
+
+        <div class="banner">
+            <div class="banner-label"><i data-lucide="target" style="width:13px;height:13px;"></i> Dein Ziel</div>
+            <div class="banner-big">-3.5 kg</div>
+            <div class="banner-sub">von 10 kg in 10 Wochen &bull; Woche 4/10</div>
+            <div class="prog"><div class="prog-fill"></div></div>
+        </div>
+
+        <div class="kurs card-style">
+            <div class="kurs-head">
+                <div class="kurs-title"><i data-lucide="compass" style="width:17px;height:17px;color:#A5B4FC;"></i> Auf Kurs?</div>
+                <div class="badge"><i data-lucide="check-circle-2" style="width:13px;height:13px;"></i> Auf Kurs</div>
+            </div>
+            <div class="kurs-nums">
+                <div class="kn"><div class="kn-label">Soll (W4)</div><div class="kn-val">-4.0</div></div>
+                <div class="kn"><div class="kn-label">Ist</div><div class="kn-val" style="color:#34D399;">-3.5</div></div>
+                <div class="kn"><div class="kn-label">Diff</div><div class="kn-val" style="color:#FBBF24;">+0.5</div></div>
+            </div>
+            <div class="tip">
+                <div class="tip-title"><i data-lucide="lightbulb" style="width:13px;height:13px;"></i> Wochenplan</div>
+                <div class="tip-r"><span class="tip-rl">Wochenziel</span><span class="tip-rv" style="color:#A5B4FC;">-1.0 kg</span></div>
+                <div class="tip-r"><span class="tip-rl">Noch diese Woche</span><span class="tip-rv" style="color:#FBBF24;">-0.5 kg</span></div>
+                <div class="tip-r"><span class="tip-rl">Empf. Defizit</span><span class="tip-rv" style="color:#34D399;">~550 kcal</span></div>
+                <div class="tip-r"><span class="tip-rl">Trainings noch</span><span class="tip-rv">2x</span></div>
+            </div>
+        </div>
+
+        <div class="streak">
+            <div class="streak-iw"><i data-lucide="flame" style="width:20px;height:20px;color:#fff;"></i></div>
+            <div><div class="streak-n">12</div><div class="streak-l">Tage in Folge</div></div>
+            <div class="streak-days">
+                <div class="sd ok">M</div><div class="sd ok">D</div><div class="sd ok">M</div>
+                <div class="sd ok">D</div><div class="sd ok">F</div><div class="sd now">S</div><div class="sd">S</div>
+            </div>
+        </div>
+
+        <div class="sg">
+            <div class="st card-style">
+                <div class="st-top">
+                    <div class="st-iw"><i data-lucide="scale" style="width:17px;height:17px;color:#A5B4FC;"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:rgba(255,255,255,0.25);"></i>
+                </div>
+                <div class="st-val">86.5</div>
+                <div class="st-lbl">Gewicht (kg)</div>
+                <div class="st-chg"><i data-lucide="trending-down" style="width:11px;height:11px;"></i> 0.3</div>
+            </div>
+            <div class="st card-style">
+                <div class="st-top">
+                    <div class="st-iw"><i data-lucide="flame" style="width:17px;height:17px;color:#34D399;"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:rgba(255,255,255,0.25);"></i>
+                </div>
+                <div class="st-val">2,340</div>
+                <div class="st-lbl">Kalorien</div>
+                <div class="st-chg"><i data-lucide="zap" style="width:11px;height:11px;"></i> 340 aktiv</div>
+            </div>
+        </div>
+        <div class="sg">
+            <div class="st card-style">
+                <div class="st-top">
+                    <div class="st-iw"><i data-lucide="activity" style="width:17px;height:17px;color:#34D399;"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:rgba(255,255,255,0.25);"></i>
+                </div>
+                <div class="st-val">4</div>
+                <div class="st-lbl">Trainings</div>
+                <div class="st-chg"><i data-lucide="arrow-up" style="width:11px;height:11px;"></i> 1 mehr</div>
+            </div>
+            <div class="st card-style">
+                <div class="st-top">
+                    <div class="st-iw"><i data-lucide="bar-chart-3" style="width:17px;height:17px;color:#FBBF24;"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:rgba(255,255,255,0.25);"></i>
+                </div>
+                <div class="st-val">85.7</div>
+                <div class="st-lbl">&#216; 7 Tage</div>
+                <div class="st-chg"><i data-lucide="trending-down" style="width:11px;height:11px;"></i> 0.5</div>
+            </div>
+        </div>
+
+        <div class="sh">
+            <div class="sh-t">Aktivit&auml;ten</div>
+            <div class="sh-l">Alle <i data-lucide="arrow-right" style="width:13px;height:13px;"></i></div>
+        </div>
+
+        <div class="act card-style">
+            <div class="act-top">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="act-iw"><i data-lucide="footprints" style="width:20px;height:20px;color:#34D399;"></i></div>
+                    <div>
+                        <div class="act-name">Morgenlauf</div>
+                        <div class="act-date"><i data-lucide="clock" style="width:10px;height:10px;"></i> Heute, 07:15</div>
+                    </div>
+                </div>
+                <div class="act-kcal">342 kcal</div>
+            </div>
+            <div class="act-stats">
+                <div class="act-st"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> <strong>5.2 km</strong></div>
+                <div class="act-st"><i data-lucide="timer" style="width:10px;height:10px;"></i> <strong>28:40</strong></div>
+                <div class="act-st"><i data-lucide="heart-pulse" style="width:10px;height:10px;"></i> <strong>152</strong> bpm</div>
+            </div>
+        </div>
+
+        <div class="act card-style">
+            <div class="act-top">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="act-iw"><i data-lucide="bike" style="width:20px;height:20px;color:#6EE7B7;"></i></div>
+                    <div>
+                        <div class="act-name">Radtour Stadtpark</div>
+                        <div class="act-date"><i data-lucide="clock" style="width:10px;height:10px;"></i> Gestern, 17:30</div>
+                    </div>
+                </div>
+                <div class="act-kcal">520 kcal</div>
+            </div>
+            <div class="act-stats">
+                <div class="act-st"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> <strong>22.1 km</strong></div>
+                <div class="act-st"><i data-lucide="timer" style="width:10px;height:10px;"></i> <strong>58:12</strong></div>
+                <div class="act-st"><i data-lucide="gauge" style="width:10px;height:10px;"></i> <strong>22.8</strong> km/h</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active">
+            <div class="ti"><i data-lucide="layout-dashboard" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Home</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="bar-chart-2" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Stats</div>
+        </div>
+        <div class="tab-item tab-item-center">
+            <div class="ti"><i data-lucide="scale" style="width:24px;height:24px;"></i></div>
+            <div class="tab-label" style="margin-top:6px;">Wiegen</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="users" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Team</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="user-circle" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Profil</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const fontNames = {
+    'prometo': { h: 'ZF Prometo', b: 'ZF Prometo', n: 'ZF Prometo' },
+    'outfit': { h: 'Outfit', b: 'Outfit', n: 'Outfit' },
+    'space-grotesk': { h: 'Space Grotesk', b: 'Space Grotesk', n: 'Space Grotesk' },
+    'jakarta': { h: 'Plus Jakarta Sans', b: 'Plus Jakarta Sans', n: 'Plus Jakarta Sans' },
+    'dm-sans': { h: 'DM Sans', b: 'DM Sans', n: 'DM Sans' },
+    'manrope': { h: 'Manrope', b: 'Manrope', n: 'Manrope' },
+    'figtree': { h: 'Figtree', b: 'Figtree', n: 'Figtree' },
+    'albert': { h: 'Albert Sans', b: 'Albert Sans', n: 'Albert Sans' },
+    'nunito': { h: 'Nunito', b: 'Nunito', n: 'Nunito' },
+    'rubik': { h: 'Rubik', b: 'Rubik', n: 'Rubik' },
+    'poppins': { h: 'Poppins', b: 'Poppins', n: 'Poppins' },
+    'syne': { h: 'Syne', b: 'Inter', n: 'Syne' },
+    'bricolage': { h: 'Bricolage Grotesque', b: 'Bricolage Grotesque', n: 'Bricolage Grotesque' },
+    'barlow': { h: 'Barlow', b: 'Barlow', n: 'Barlow' },
+    'urbanist': { h: 'Urbanist', b: 'Urbanist', n: 'Urbanist' },
+    'montserrat': { h: 'Montserrat', b: 'Montserrat', n: 'Montserrat' },
+    'exo2': { h: 'Exo 2', b: 'Exo 2', n: 'Exo 2' },
+    'rajdhani': { h: 'Rajdhani', b: 'Rajdhani', n: 'Rajdhani' },
+    'orbitron': { h: 'Orbitron', b: 'Inter', n: 'Orbitron' },
+    'syne-prometo': { h: 'Syne', b: 'ZF Prometo', n: 'Syne' },
+    'bricolage-prometo': { h: 'Bricolage', b: 'ZF Prometo', n: 'Bricolage' },
+    'jakarta-mono': { h: 'Jakarta Sans', b: 'Jakarta Sans', n: 'JetBrains Mono' },
+};
+
+function setFont(f) {
+    document.getElementById('pf').setAttribute('data-font', f);
+    document.querySelectorAll('.bar-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const info = fontNames[f] || { h: f, b: f, n: f };
+    document.getElementById('fontInfo').innerHTML =
+        'Heading: <strong>' + info.h + '</strong> &bull; Body: <strong>' + info.b + '</strong> &bull; Numbers: <strong>' + info.n + '</strong>';
+    lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+</script>
+</body>
+</html>

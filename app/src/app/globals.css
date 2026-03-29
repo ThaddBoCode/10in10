@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* Base styles that use theme + font variables */
+body {
+  background: var(--bg);
+  background-image: var(--bg-image, none);
+  color: var(--text);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-weight: var(--font-body-weight, 300);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility classes for the design system */
+.font-heading {
+  font-family: var(--font-heading, system-ui, sans-serif);
+  font-weight: var(--font-heading-weight, 500);
+  letter-spacing: var(--font-heading-spacing, 0.5px);
+}
+
+.font-numbers {
+  font-family: var(--font-numbers, system-ui, sans-serif);
+  font-weight: var(--font-numbers-weight, 500);
+  letter-spacing: var(--font-numbers-spacing, 0px);
+}
+
+.font-body {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-weight: var(--font-body-weight, 300);
+}
+
+/* Card base style */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: var(--card-blur, none);
+  -webkit-backdrop-filter: var(--card-blur, none);
+  border-radius: var(--card-radius, 20px);
+  border: var(--card-border-width, 1px) solid var(--border);
+  box-shadow: var(--card-shadow, none);
+}
+
+/* Gradient banner */
+.gradient-banner {
+  background: var(--gradient-primary);
+  border-radius: var(--card-radius, 20px);
+}
+
+/* Scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Page container with bottom padding for tab bar */
+.page-content {
+  min-height: 100vh;
+  padding-bottom: 100px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Selection color */
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+/* =================== DESKTOP LAYOUT =================== */
+@media (min-width: 768px) {
+  .page-content {
+    max-width: 640px;
+    padding-bottom: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-content {
+    max-width: 480px;
+    padding-bottom: 20px;
+    margin: 0 auto;
+  }
+
+  /* Desktop: Bottom tab bar becomes sidebar or top nav alternative */
+  /* For now: keep bottom bar but narrower + centered */
+  nav.fixed {
+    max-width: 480px;
+    left: 50% !important;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page-content {
+    max-width: 520px;
+  }
+}
+
+/* Smooth transitions for theme switching */
+body, .card, .gradient-banner, nav {
+  transition: background-color 0.3s, background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Touch improvements for mobile */
+@media (hover: none) {
+  .card:hover {
+    transform: none !important;
+  }
+}
+
+/* Safe area insets for notch devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .page-content {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+
+  nav.fixed {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+}

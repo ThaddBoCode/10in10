@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>10in10 - Design Concepts</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @font-face {
+            font-family: 'ZF Prometo';
+            src: url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Lt.woff2') format('woff2'),
+                 url('../Font/Font/Webfonts/WOFF/ZFPrometo_W_Lt.woff') format('woff');
+            font-weight: 300;
+        }
+        @font-face {
+            font-family: 'ZF Prometo';
+            src: url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Md.woff2') format('woff2'),
+                 url('../Font/Font/Webfonts/WOFF/ZFPrometo_W_Md.woff') format('woff');
+            font-weight: 500;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
+
+        /* ============================================
+           1. GLASSMORPHISM
+           Frosted glass, blur, transparency, gradients
+           ============================================ */
+        [data-theme="glass"] {
+            --bg: #0C0C1D;
+            --bg-image: linear-gradient(135deg, #0C0C1D 0%, #1a0a2e 30%, #0C0C1D 50%, #0a1628 70%, #0C0C1D 100%);
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-blur: blur(20px);
+            --card-radius: 20px;
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --primary: #818CF8;
+            --primary-light: #A5B4FC;
+            --accent: #34D399;
+            --accent-light: #6EE7B7;
+            --success: #34D399;
+            --warning: #FBBF24;
+            --danger: #FB7185;
+            --text: #FFFFFF;
+            --text-secondary: rgba(255,255,255,0.65);
+            --text-muted: rgba(255,255,255,0.35);
+            --border: rgba(255,255,255,0.08);
+            --gradient-banner: linear-gradient(135deg, rgba(129,140,248,0.4), rgba(52,211,153,0.3));
+            --banner-border: rgba(255,255,255,0.15);
+            --stat-icon-bg: rgba(255,255,255,0.08);
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'ZF Prometo', 'Outfit', sans-serif;
+            --font-numbers: 'Outfit', sans-serif;
+            --heading-weight: 700;
+            --number-weight: 800;
+            --heading-transform: none;
+            --heading-spacing: -0.5px;
+            --tab-bg: rgba(12, 12, 29, 0.85);
+            --tab-active: #818CF8;
+            --center-btn-bg: linear-gradient(135deg, #818CF8, #34D399);
+            --center-btn-shadow: 0 4px 20px rgba(129,140,248,0.4);
+            --streak-bg: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,113,133,0.2));
+            --streak-border: rgba(251,191,36,0.2);
+        }
+
+        /* ============================================
+           2. NEUBRUTALISM
+           Thick borders, raw shadows, bold colors, offset
+           ============================================ */
+        [data-theme="brutal"] {
+            --bg: #E8E4DE;
+            --bg-image: none;
+            --card-bg: #FFFFFF;
+            --card-border: #1A1A1A;
+            --card-blur: none;
+            --card-radius: 12px;
+            --card-shadow: 4px 4px 0px #1A1A1A;
+            --primary: #5B2EFF;
+            --primary-light: #7C5CFF;
+            --accent: #FF5C5C;
+            --accent-light: #FF8A8A;
+            --success: #00C853;
+            --warning: #FFD600;
+            --danger: #FF1744;
+            --text: #1A1A1A;
+            --text-secondary: #555555;
+            --text-muted: #999999;
+            --border: #1A1A1A;
+            --gradient-banner: #5B2EFF;
+            --banner-border: #1A1A1A;
+            --stat-icon-bg: #F0ECFF;
+            --font-heading: 'Syne', sans-serif;
+            --font-body: 'ZF Prometo', 'Inter', sans-serif;
+            --font-numbers: 'Syne', sans-serif;
+            --heading-weight: 800;
+            --number-weight: 800;
+            --heading-transform: none;
+            --heading-spacing: -0.5px;
+            --tab-bg: #FFFFFF;
+            --tab-active: #5B2EFF;
+            --center-btn-bg: #FF5C5C;
+            --center-btn-shadow: 4px 4px 0px #1A1A1A;
+            --streak-bg: #FFF9C4;
+            --streak-border: #1A1A1A;
+        }
+
+        /* ============================================
+           3. LUXURY / GOLD
+           Black + gold, serif fonts, premium
+           ============================================ */
+        [data-theme="luxury"] {
+            --bg: #0A0A0A;
+            --bg-image: none;
+            --card-bg: #141414;
+            --card-border: #2A2520;
+            --card-blur: none;
+            --card-radius: 4px;
+            --card-shadow: none;
+            --primary: #C9A84C;
+            --primary-light: #E0C878;
+            --accent: #C9A84C;
+            --accent-light: #E0C878;
+            --success: #4CAF50;
+            --warning: #C9A84C;
+            --danger: #B71C1C;
+            --text: #F5F0E8;
+            --text-secondary: #A09880;
+            --text-muted: #5A5040;
+            --border: #2A2520;
+            --gradient-banner: linear-gradient(135deg, #C9A84C, #8B6914);
+            --banner-border: #C9A84C;
+            --stat-icon-bg: rgba(201,168,76,0.1);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'ZF Prometo', 'Libre Baskerville', serif;
+            --font-numbers: 'ZF Prometo', 'Playfair Display', serif;
+            --heading-weight: 700;
+            --number-weight: 500;
+            --heading-transform: none;
+            --heading-spacing: 0px;
+            --tab-bg: rgba(10, 10, 10, 0.95);
+            --tab-active: #C9A84C;
+            --center-btn-bg: linear-gradient(135deg, #C9A84C, #8B6914);
+            --center-btn-shadow: 0 4px 15px rgba(201,168,76,0.3);
+            --streak-bg: rgba(201,168,76,0.08);
+            --streak-border: #2A2520;
+        }
+
+        /* ============================================
+           4. RETRO TERMINAL
+           CRT scanlines, monospace, green/amber phosphor
+           ============================================ */
+        [data-theme="terminal"] {
+            --bg: #0A0A0A;
+            --bg-image: repeating-linear-gradient(0deg, rgba(0,255,65,0.03) 0px, rgba(0,255,65,0.03) 1px, transparent 1px, transparent 3px);
+            --card-bg: rgba(0, 255, 65, 0.04);
+            --card-border: rgba(0, 255, 65, 0.15);
+            --card-blur: none;
+            --card-radius: 2px;
+            --card-shadow: 0 0 10px rgba(0,255,65,0.05), inset 0 0 30px rgba(0,255,65,0.02);
+            --primary: #00FF41;
+            --primary-light: #66FF8E;
+            --accent: #00FF41;
+            --accent-light: #66FF8E;
+            --success: #00FF41;
+            --warning: #FFB800;
+            --danger: #FF0040;
+            --text: #00FF41;
+            --text-secondary: rgba(0,255,65,0.65);
+            --text-muted: rgba(0,255,65,0.30);
+            --border: rgba(0,255,65,0.12);
+            --gradient-banner: rgba(0, 255, 65, 0.1);
+            --banner-border: rgba(0, 255, 65, 0.3);
+            --stat-icon-bg: rgba(0,255,65,0.08);
+            --font-heading: 'JetBrains Mono', monospace;
+            --font-body: 'JetBrains Mono', monospace;
+            --font-numbers: 'JetBrains Mono', monospace;
+            --heading-weight: 700;
+            --number-weight: 700;
+            --heading-transform: uppercase;
+            --heading-spacing: 2px;
+            --tab-bg: rgba(10, 10, 10, 0.95);
+            --tab-active: #00FF41;
+            --center-btn-bg: rgba(0, 255, 65, 0.15);
+            --center-btn-shadow: 0 0 20px rgba(0,255,65,0.3), 0 0 40px rgba(0,255,65,0.1);
+            --streak-bg: rgba(0,255,65,0.05);
+            --streak-border: rgba(0,255,65,0.12);
+        }
+
+        /* ============================================
+           5. GRADIENT MESH
+           Colorful bg, white/light cards, vibrant
+           ============================================ */
+        [data-theme="mesh"] {
+            --bg: #F8FAFC;
+            --bg-image: none;
+            --card-bg: #FFFFFF;
+            --card-border: rgba(0,0,0,0.06);
+            --card-blur: none;
+            --card-radius: 24px;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+            --primary: #8B5CF6;
+            --primary-light: #A78BFA;
+            --accent: #06B6D4;
+            --accent-light: #22D3EE;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text: #0F172A;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: rgba(0,0,0,0.06);
+            --gradient-banner: linear-gradient(135deg, #8B5CF6, #EC4899, #F97316);
+            --banner-border: transparent;
+            --stat-icon-bg: #F1F5F9;
+            --font-heading: 'Bricolage Grotesque', sans-serif;
+            --font-body: 'ZF Prometo', 'Inter', sans-serif;
+            --font-numbers: 'Bricolage Grotesque', sans-serif;
+            --heading-weight: 800;
+            --number-weight: 800;
+            --heading-transform: none;
+            --heading-spacing: -0.5px;
+            --tab-bg: rgba(255,255,255,0.95);
+            --tab-active: #8B5CF6;
+            --center-btn-bg: linear-gradient(135deg, #8B5CF6, #EC4899);
+            --center-btn-shadow: 0 4px 20px rgba(139,92,246,0.3);
+            --streak-bg: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            --streak-border: transparent;
+        }
+
+        /* ============================================
+           6. NEUMORPHISM
+           Soft shadows, extruded/pressed, monochrome
+           ============================================ */
+        [data-theme="neumorph"] {
+            --bg: #E0E5EC;
+            --bg-image: none;
+            --card-bg: #E0E5EC;
+            --card-border: transparent;
+            --card-blur: none;
+            --card-radius: 20px;
+            --card-shadow: 8px 8px 16px #B8BEC7, -8px -8px 16px #FFFFFF;
+            --primary: #6C63FF;
+            --primary-light: #8B83FF;
+            --accent: #2DD4BF;
+            --accent-light: #5EEAD4;
+            --success: #22C55E;
+            --warning: #EAB308;
+            --danger: #EF4444;
+            --text: #2D3748;
+            --text-secondary: #718096;
+            --text-muted: #A0AEC0;
+            --border: transparent;
+            --gradient-banner: linear-gradient(135deg, #6C63FF, #2DD4BF);
+            --banner-border: transparent;
+            --stat-icon-bg: #E0E5EC;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'ZF Prometo', 'Outfit', sans-serif;
+            --font-numbers: 'Outfit', sans-serif;
+            --heading-weight: 700;
+            --number-weight: 800;
+            --heading-transform: none;
+            --heading-spacing: -0.3px;
+            --tab-bg: #E0E5EC;
+            --tab-active: #6C63FF;
+            --center-btn-bg: linear-gradient(135deg, #6C63FF, #2DD4BF);
+            --center-btn-shadow: 4px 4px 10px #B8BEC7, -4px -4px 10px #FFFFFF;
+            --streak-bg: #E0E5EC;
+            --streak-border: transparent;
+        }
+
+        /* ============================================
+           7. CYBERPUNK NEON
+           Hard contrast, glitch feel, aggressive neon
+           ============================================ */
+        [data-theme="cyberpunk"] {
+            --bg: #0D0221;
+            --bg-image: none;
+            --card-bg: #150535;
+            --card-border: #FF003C;
+            --card-blur: none;
+            --card-radius: 0px;
+            --card-shadow: 0 0 15px rgba(255,0,60,0.15), inset 0 1px 0 rgba(255,0,60,0.3);
+            --primary: #FF003C;
+            --primary-light: #FF4D76;
+            --accent: #00FFF5;
+            --accent-light: #66FFF8;
+            --success: #39FF14;
+            --warning: #FFE600;
+            --danger: #FF003C;
+            --text: #FFFFFF;
+            --text-secondary: #CC99CC;
+            --text-muted: #664466;
+            --border: #FF003C40;
+            --gradient-banner: linear-gradient(135deg, #FF003C, #0D0221);
+            --banner-border: #FF003C;
+            --stat-icon-bg: rgba(255,0,60,0.1);
+            --font-heading: 'Syne', sans-serif;
+            --font-body: 'ZF Prometo', 'Space Mono', monospace;
+            --font-numbers: 'Space Mono', monospace;
+            --heading-weight: 800;
+            --number-weight: 700;
+            --heading-transform: uppercase;
+            --heading-spacing: 3px;
+            --tab-bg: rgba(13,2,33,0.95);
+            --tab-active: #FF003C;
+            --center-btn-bg: #FF003C;
+            --center-btn-shadow: 0 0 30px rgba(255,0,60,0.5), 0 0 60px rgba(255,0,60,0.2);
+            --streak-bg: rgba(255,0,60,0.08);
+            --streak-border: #FF003C40;
+        }
+
+        /* ============================================
+           8. NATURE / ORGANIC
+           Warm earth tones, rounded, cozy
+           ============================================ */
+        [data-theme="nature"] {
+            --bg: #1B1B16;
+            --bg-image: none;
+            --card-bg: #252520;
+            --card-border: #3A3A30;
+            --card-blur: none;
+            --card-radius: 24px;
+            --card-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            --primary: #A3BE8C;
+            --primary-light: #B8D4A0;
+            --accent: #EBCB8B;
+            --accent-light: #F0D8A8;
+            --success: #A3BE8C;
+            --warning: #EBCB8B;
+            --danger: #BF616A;
+            --text: #ECEFF4;
+            --text-secondary: #A0A090;
+            --text-muted: #606055;
+            --border: #3A3A30;
+            --gradient-banner: linear-gradient(135deg, #A3BE8C, #5E7F50);
+            --banner-border: #A3BE8C40;
+            --stat-icon-bg: rgba(163,190,140,0.1);
+            --font-heading: 'Bricolage Grotesque', sans-serif;
+            --font-body: 'ZF Prometo', 'Inter', sans-serif;
+            --font-numbers: 'Bricolage Grotesque', sans-serif;
+            --heading-weight: 700;
+            --number-weight: 700;
+            --heading-transform: none;
+            --heading-spacing: -0.3px;
+            --tab-bg: rgba(27,27,22,0.95);
+            --tab-active: #A3BE8C;
+            --center-btn-bg: linear-gradient(135deg, #A3BE8C, #EBCB8B);
+            --center-btn-shadow: 0 4px 15px rgba(163,190,140,0.25);
+            --streak-bg: rgba(235,203,139,0.08);
+            --streak-border: #3A3A30;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; }
+
+        .theme-bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+            background: #0A0A0A; padding: 10px 16px;
+            border-bottom: 1px solid #222;
+            display: flex; align-items: center; gap: 8px;
+            overflow-x: auto;
+        }
+        .theme-bar::-webkit-scrollbar { display: none; }
+        .theme-bar-label {
+            font-size: 11px; font-weight: 700; color: #555;
+            text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
+            font-family: 'Space Mono', monospace;
+        }
+        .theme-btn {
+            padding: 7px 14px; border-radius: 8px;
+            border: 2px solid #222; background: #111;
+            color: #777; font-size: 11px; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            white-space: nowrap; transition: all 0.3s;
+        }
+        .theme-btn.active { border-color: #888; color: white; background: #1a1a1a; }
+
+        .phone-frame {
+            width: 390px; height: 844px;
+            margin: 65px auto 20px;
+            border-radius: 40px; border: 3px solid #222;
+            overflow: hidden; position: relative;
+        }
+        .notch {
+            width: 160px; height: 34px; background: #000;
+            border-radius: 0 0 20px 20px; margin: 0 auto;
+            position: relative; z-index: 100;
+        }
+
+        .screen {
+            height: calc(100% - 34px); overflow-y: auto;
+            padding-bottom: 90px;
+            background: var(--bg);
+            background-image: var(--bg-image);
+            transition: all 0.4s;
+        }
+        .screen::-webkit-scrollbar { display: none; }
+
+        /* Tab Bar - adapts to theme */
+        .tab-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 85px; background: var(--tab-bg);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around;
+            align-items: flex-start; padding-top: 10px;
+            border-top: 1px solid var(--border); z-index: 100;
+        }
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; cursor: pointer; padding: 4px 12px;
+        }
+        .tab-item.active .ti { color: var(--tab-active); }
+        .tab-item.active .tab-label { color: var(--tab-active); }
+        .ti { color: var(--text-muted); transition: all 0.3s; }
+        .tab-label { font-size: 10px; color: var(--text-muted); font-weight: 500; font-family: var(--font-body); }
+        .tab-item-center { margin-top: -22px; }
+        .tab-item-center .ti {
+            width: 52px; height: 52px;
+            background: var(--center-btn-bg); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white !important;
+            box-shadow: var(--center-btn-shadow);
+        }
+
+        /* All content components */
+        .dashboard-header { padding: 16px 20px 0; }
+        .greeting { font-size: 14px; color: var(--text-secondary); font-family: var(--font-body); }
+        .greeting-name {
+            font-size: 26px; font-weight: var(--heading-weight);
+            margin-top: 2px; color: var(--text);
+            font-family: var(--font-heading);
+            text-transform: var(--heading-transform);
+            letter-spacing: var(--heading-spacing);
+        }
+
+        .goal-banner {
+            margin: 16px 20px; padding: 20px;
+            background: var(--gradient-banner);
+            border-radius: var(--card-radius); border: 1px solid var(--banner-border);
+            position: relative; overflow: hidden;
+        }
+        .goal-banner-deco {
+            position: absolute; top: -30px; right: -30px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.08); border-radius: 50%;
+        }
+        .goal-banner-title {
+            font-size: 11px; font-weight: 600; opacity: 0.9;
+            text-transform: uppercase; letter-spacing: 2px;
+            font-family: var(--font-body); color: rgba(255,255,255,0.85);
+            display: flex; align-items: center; gap: 6px;
+            position: relative;
+        }
+        .goal-banner-value {
+            font-size: 40px; font-weight: var(--number-weight);
+            margin: 6px 0; font-family: var(--font-numbers);
+            letter-spacing: -1px; color: white; position: relative;
+        }
+        .goal-banner-sub { font-size: 13px; opacity: 0.8; font-family: var(--font-body); color: rgba(255,255,255,0.85); position: relative; }
+        .goal-progress-bar {
+            height: 5px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; margin-top: 14px; overflow: hidden; position: relative;
+        }
+        .goal-progress-fill { height: 100%; background: rgba(255,255,255,0.9); border-radius: 3px; }
+
+        /* Cards */
+        .card {
+            margin: 12px 20px; padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: var(--card-blur);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 15px; font-weight: var(--heading-weight);
+            color: var(--text); font-family: var(--font-heading);
+            display: flex; align-items: center; gap: 8px;
+            text-transform: var(--heading-transform);
+            letter-spacing: var(--heading-spacing);
+        }
+        .badge {
+            padding: 4px 12px; border-radius: 8px;
+            font-size: 11px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 4px;
+            font-family: var(--font-body);
+        }
+        .badge-success { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+
+        .kurs-summary {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px; margin-bottom: 14px;
+        }
+        .ks-item { text-align: center; }
+        .ks-label {
+            font-size: 9px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.8px;
+            font-family: var(--font-body);
+        }
+        .ks-value {
+            font-size: 20px; font-weight: var(--number-weight);
+            margin-top: 4px; color: var(--text);
+            font-family: var(--font-numbers);
+        }
+
+        .tip-box {
+            padding: 14px;
+            background: color-mix(in srgb, var(--primary) 8%, transparent);
+            border-radius: calc(var(--card-radius) * 0.7);
+            border: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
+        }
+        .tip-title {
+            font-size: 11px; font-weight: 700; color: var(--primary-light);
+            margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+            font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .tip-row { display: flex; justify-content: space-between; padding: 4px 0; }
+        .tip-row-label { font-size: 13px; color: var(--text-secondary); font-family: var(--font-body); }
+        .tip-row-value { font-size: 14px; font-weight: 700; font-family: var(--font-numbers); color: var(--text); }
+
+        /* Streak */
+        .streak {
+            margin: 12px 20px; padding: 14px 18px;
+            background: var(--streak-bg);
+            backdrop-filter: var(--card-blur);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--streak-border);
+            box-shadow: var(--card-shadow);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .streak-icon-w {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--danger), var(--warning));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .streak-num { font-size: 24px; font-weight: var(--number-weight); color: var(--text); font-family: var(--font-numbers); }
+        .streak-lbl { font-size: 10px; color: var(--text-secondary); font-family: var(--font-body); }
+        .streak-days { display: flex; gap: 4px; margin-left: auto; }
+        .sd {
+            width: 20px; height: 20px; border-radius: 5px;
+            background: color-mix(in srgb, var(--text-muted) 20%, transparent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: var(--text-muted); font-weight: 600;
+        }
+        .sd.ok { background: var(--success); color: white; }
+        .sd.now { border: 2px solid var(--primary); background: transparent; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; padding: 0 20px; margin-bottom: 12px;
+        }
+        .stat {
+            background: var(--card-bg); backdrop-filter: var(--card-blur);
+            border-radius: var(--card-radius); padding: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow); cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .stat:hover { transform: translateY(-2px); }
+        .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .stat-iw {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: var(--stat-icon-bg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .stat-val { font-size: 24px; font-weight: var(--number-weight); color: var(--text); font-family: var(--font-numbers); }
+        .stat-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 3px; font-family: var(--font-body); }
+        .stat-chg {
+            font-size: 10px; font-weight: 600; margin-top: 8px;
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 3px 8px; border-radius: 6px;
+            background: color-mix(in srgb, var(--success) 12%, transparent);
+            color: var(--success); font-family: var(--font-body);
+        }
+
+        /* Section */
+        .sec-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 10px; }
+        .sec-title { font-size: 17px; font-weight: var(--heading-weight); color: var(--text); font-family: var(--font-heading); text-transform: var(--heading-transform); letter-spacing: var(--heading-spacing); }
+        .sec-link { font-size: 12px; color: var(--primary-light); font-family: var(--font-body); display: flex; align-items: center; gap: 4px; }
+
+        /* Activity */
+        .act {
+            margin: 0 20px 10px; padding: 14px 18px;
+            background: var(--card-bg); backdrop-filter: var(--card-blur);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+        }
+        .act-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .act-iw {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: var(--stat-icon-bg);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .act-name { font-size: 14px; font-weight: 700; color: var(--text); font-family: var(--font-heading); }
+        .act-date { font-size: 11px; color: var(--text-secondary); font-family: var(--font-body); display: flex; align-items: center; gap: 4px; }
+        .act-kcal { font-size: 17px; font-weight: var(--number-weight); color: var(--accent); font-family: var(--font-numbers); }
+        .act-stats { display: flex; gap: 16px; }
+        .act-st { font-size: 11px; color: var(--text-secondary); font-family: var(--font-body); display: flex; align-items: center; gap: 3px; }
+        .act-st strong { color: var(--text); font-weight: 700; }
+
+        /* Brutal special: card shadow override for light themes */
+        [data-theme="brutal"] .stat { border: 2px solid var(--border); }
+        [data-theme="brutal"] .card { border: 2px solid var(--border); }
+        [data-theme="brutal"] .act { border: 2px solid var(--border); }
+        [data-theme="brutal"] .streak { border: 2px solid var(--border); box-shadow: 4px 4px 0px #1A1A1A; }
+        [data-theme="brutal"] .goal-banner { border: 2px solid #1A1A1A; box-shadow: 4px 4px 0px #1A1A1A; color: white; }
+        [data-theme="brutal"] .tab-bar { border-top: 2px solid #1A1A1A; }
+
+        /* Neumorph special */
+        [data-theme="neumorph"] .stat { box-shadow: 6px 6px 12px #B8BEC7, -6px -6px 12px #FFFFFF; border: none; }
+        [data-theme="neumorph"] .stat-iw { box-shadow: inset 3px 3px 6px #B8BEC7, inset -3px -3px 6px #FFFFFF; }
+        [data-theme="neumorph"] .goal-banner { box-shadow: 6px 6px 12px #B8BEC7, -6px -6px 12px #FFFFFF; }
+        [data-theme="neumorph"] .tab-bar { box-shadow: 0 -4px 10px rgba(0,0,0,0.08); border-top: none; }
+        [data-theme="neumorph"] .sd.ok { box-shadow: inset 2px 2px 4px rgba(0,0,0,0.15); }
+
+        /* Terminal special: scanline flicker */
+        [data-theme="terminal"] .stat-val, [data-theme="terminal"] .ks-value,
+        [data-theme="terminal"] .goal-banner-value, [data-theme="terminal"] .streak-num,
+        [data-theme="terminal"] .act-kcal {
+            text-shadow: 0 0 8px rgba(0,255,65,0.5);
+        }
+        [data-theme="terminal"] .goal-banner {
+            box-shadow: 0 0 15px rgba(0,255,65,0.1), inset 0 0 30px rgba(0,255,65,0.03);
+        }
+        [data-theme="terminal"] .sd.ok { box-shadow: 0 0 6px rgba(0,255,65,0.4); }
+
+        /* Cyberpunk special: clip-path angles */
+        [data-theme="cyberpunk"] .goal-banner {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+            box-shadow: 0 0 20px rgba(255,0,60,0.2);
+        }
+        [data-theme="cyberpunk"] .stat, [data-theme="cyberpunk"] .act, [data-theme="cyberpunk"] .card {
+            border-left: 2px solid var(--primary);
+        }
+        [data-theme="cyberpunk"] .tab-bar { border-top: 2px solid #FF003C; }
+
+        @media (min-width: 800px) {
+            .phone-frame { width: 100%; max-width: 100%; height: 100vh; margin-top: 56px; border-radius: 0; border: none; }
+            .notch { display: none; }
+            .screen { max-width: 500px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="theme-bar">
+    <span class="theme-bar-label">Design:</span>
+    <button class="theme-btn active" onclick="setTheme('glass')">Glass</button>
+    <button class="theme-btn" onclick="setTheme('brutal')">Brutal</button>
+    <button class="theme-btn" onclick="setTheme('luxury')">Luxury</button>
+    <button class="theme-btn" onclick="setTheme('terminal')">Terminal</button>
+    <button class="theme-btn" onclick="setTheme('mesh')">Mesh</button>
+    <button class="theme-btn" onclick="setTheme('neumorph')">Neumorph</button>
+    <button class="theme-btn" onclick="setTheme('cyberpunk')">Cyberpunk</button>
+    <button class="theme-btn" onclick="setTheme('nature')">Nature</button>
+</div>
+
+<div class="phone-frame" data-theme="glass" id="pf">
+    <div class="notch"></div>
+    <div class="screen">
+
+        <div class="dashboard-header">
+            <div class="greeting">Guten Morgen,</div>
+            <div class="greeting-name">Max</div>
+        </div>
+
+        <div class="goal-banner">
+            <div class="goal-banner-deco"></div>
+            <div class="goal-banner-title"><i data-lucide="target" style="width:14px;height:14px;"></i> Dein Ziel</div>
+            <div class="goal-banner-value">-3.5 kg</div>
+            <div class="goal-banner-sub">von 10 kg in 10 Wochen &bull; Woche 4/10</div>
+            <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:35%"></div></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i data-lucide="compass" style="width:18px;height:18px;color:var(--primary-light);"></i> Auf Kurs?</div>
+                <div class="badge badge-success"><i data-lucide="check-circle-2" style="width:13px;height:13px;"></i> Auf Kurs</div>
+            </div>
+            <div class="kurs-summary">
+                <div class="ks-item"><div class="ks-label">Soll (W4)</div><div class="ks-value">-4.0</div></div>
+                <div class="ks-item"><div class="ks-label">Ist</div><div class="ks-value" style="color:var(--success);">-3.5</div></div>
+                <div class="ks-item"><div class="ks-label">Diff</div><div class="ks-value" style="color:var(--warning);">+0.5</div></div>
+            </div>
+            <div class="tip-box">
+                <div class="tip-title"><i data-lucide="lightbulb" style="width:13px;height:13px;"></i> Wochenplan</div>
+                <div class="tip-row"><span class="tip-row-label">Wochenziel</span><span class="tip-row-value" style="color:var(--primary-light);">-1.0 kg</span></div>
+                <div class="tip-row"><span class="tip-row-label">Noch diese Woche</span><span class="tip-row-value" style="color:var(--warning);">-0.5 kg</span></div>
+                <div class="tip-row"><span class="tip-row-label">Empf. Defizit</span><span class="tip-row-value" style="color:var(--accent);">~550 kcal</span></div>
+                <div class="tip-row"><span class="tip-row-label">Trainings noch</span><span class="tip-row-value">2x</span></div>
+            </div>
+        </div>
+
+        <div class="streak">
+            <div class="streak-icon-w"><i data-lucide="flame" style="width:20px;height:20px;color:white;"></i></div>
+            <div><div class="streak-num">12</div><div class="streak-lbl">Tage in Folge</div></div>
+            <div class="streak-days">
+                <div class="sd ok">M</div><div class="sd ok">D</div><div class="sd ok">M</div>
+                <div class="sd ok">D</div><div class="sd ok">F</div><div class="sd now">S</div><div class="sd">S</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-iw"><i data-lucide="scale" style="width:17px;height:17px;color:var(--primary-light);"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:var(--text-muted);"></i>
+                </div>
+                <div class="stat-val">86.5</div>
+                <div class="stat-lbl">Gewicht (kg)</div>
+                <div class="stat-chg"><i data-lucide="trending-down" style="width:11px;height:11px;"></i> 0.3</div>
+            </div>
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-iw"><i data-lucide="flame" style="width:17px;height:17px;color:var(--accent);"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:var(--text-muted);"></i>
+                </div>
+                <div class="stat-val">2,340</div>
+                <div class="stat-lbl">Kalorien</div>
+                <div class="stat-chg"><i data-lucide="zap" style="width:11px;height:11px;"></i> 340 aktiv</div>
+            </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-iw"><i data-lucide="activity" style="width:17px;height:17px;color:var(--success);"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:var(--text-muted);"></i>
+                </div>
+                <div class="stat-val">4</div>
+                <div class="stat-lbl">Trainings</div>
+                <div class="stat-chg"><i data-lucide="arrow-up" style="width:11px;height:11px;"></i> 1 mehr</div>
+            </div>
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-iw"><i data-lucide="bar-chart-3" style="width:17px;height:17px;color:var(--warning);"></i></div>
+                    <i data-lucide="chevron-right" style="width:15px;height:15px;color:var(--text-muted);"></i>
+                </div>
+                <div class="stat-val">85.7</div>
+                <div class="stat-lbl">&#216; 7 Tage</div>
+                <div class="stat-chg"><i data-lucide="trending-down" style="width:11px;height:11px;"></i> 0.5</div>
+            </div>
+        </div>
+
+        <div class="sec-head">
+            <div class="sec-title">Aktivit&auml;ten</div>
+            <div class="sec-link">Alle <i data-lucide="arrow-right" style="width:13px;height:13px;"></i></div>
+        </div>
+
+        <div class="act">
+            <div class="act-top">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="act-iw"><i data-lucide="footprints" style="width:20px;height:20px;color:var(--accent);"></i></div>
+                    <div>
+                        <div class="act-name">Morgenlauf</div>
+                        <div class="act-date"><i data-lucide="clock" style="width:10px;height:10px;"></i> Heute, 07:15</div>
+                    </div>
+                </div>
+                <div class="act-kcal">342 kcal</div>
+            </div>
+            <div class="act-stats">
+                <div class="act-st"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> <strong>5.2 km</strong></div>
+                <div class="act-st"><i data-lucide="timer" style="width:10px;height:10px;"></i> <strong>28:40</strong></div>
+                <div class="act-st"><i data-lucide="heart-pulse" style="width:10px;height:10px;"></i> <strong>152</strong> bpm</div>
+            </div>
+        </div>
+
+        <div class="act">
+            <div class="act-top">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="act-iw"><i data-lucide="bike" style="width:20px;height:20px;color:var(--success);"></i></div>
+                    <div>
+                        <div class="act-name">Radtour Stadtpark</div>
+                        <div class="act-date"><i data-lucide="clock" style="width:10px;height:10px;"></i> Gestern, 17:30</div>
+                    </div>
+                </div>
+                <div class="act-kcal">520 kcal</div>
+            </div>
+            <div class="act-stats">
+                <div class="act-st"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> <strong>22.1 km</strong></div>
+                <div class="act-st"><i data-lucide="timer" style="width:10px;height:10px;"></i> <strong>58:12</strong></div>
+                <div class="act-st"><i data-lucide="gauge" style="width:10px;height:10px;"></i> <strong>22.8</strong> km/h</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active">
+            <div class="ti"><i data-lucide="layout-dashboard" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Home</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="bar-chart-2" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Stats</div>
+        </div>
+        <div class="tab-item tab-item-center">
+            <div class="ti"><i data-lucide="scale" style="width:24px;height:24px;"></i></div>
+            <div class="tab-label" style="margin-top:6px;">Wiegen</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="users" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Team</div>
+        </div>
+        <div class="tab-item">
+            <div class="ti"><i data-lucide="user-circle" style="width:22px;height:22px;"></i></div>
+            <div class="tab-label">Profil</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setTheme(t) {
+    document.getElementById('pf').setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    lucide.createIcons();
+}
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+</script>
+</body>
+</html>

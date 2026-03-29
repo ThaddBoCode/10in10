@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>10in10 - Mockup v2</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6C5CE7;
+            --primary-light: #A29BFE;
+            --primary-dark: #5A4BD1;
+            --accent: #00CEC9;
+            --accent-light: #81ECEC;
+            --success: #00B894;
+            --warning: #FDCB6E;
+            --danger: #E17055;
+            --bg: #0F0F1A;
+            --bg-card: #1A1A2E;
+            --bg-card-hover: #222240;
+            --bg-input: #16162B;
+            --text: #FFFFFF;
+            --text-secondary: #A0A0C0;
+            --text-muted: #6C6C8A;
+            --border: #2A2A45;
+            --gradient-1: linear-gradient(135deg, #6C5CE7, #A29BFE);
+            --gradient-2: linear-gradient(135deg, #00CEC9, #81ECEC);
+            --gradient-3: linear-gradient(135deg, #E17055, #FDCB6E);
+            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            margin: 20px auto;
+            border-radius: 40px;
+            border: 3px solid #333;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4), 0 0 60px rgba(108, 92, 231, 0.15);
+        }
+
+        .notch {
+            width: 160px; height: 34px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            margin: 0 auto;
+            position: relative; z-index: 100;
+        }
+
+        .screen {
+            height: calc(100% - 34px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            scroll-behavior: smooth;
+        }
+        .screen::-webkit-scrollbar { display: none; }
+
+        /* Screen Nav */
+        .screen-nav {
+            display: flex; gap: 4px; padding: 10px 12px;
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 50;
+            flex-wrap: wrap;
+        }
+        .screen-nav button {
+            padding: 6px 8px; border: none; border-radius: 8px;
+            background: transparent; color: var(--text-muted);
+            font-size: 9px; font-weight: 600; cursor: pointer;
+            font-family: inherit; transition: all 0.3s;
+        }
+        .screen-nav button.active {
+            background: var(--gradient-1); color: white;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 85px;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around;
+            align-items: flex-start; padding-top: 10px;
+            border-top: 1px solid var(--border); z-index: 100;
+        }
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; cursor: pointer; padding: 4px 12px;
+        }
+        .tab-item.active .tab-icon, .tab-item.active .tab-label { color: var(--primary); }
+        .tab-icon { font-size: 22px; color: var(--text-muted); }
+        .tab-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+        .tab-item-center { margin-top: -22px; }
+        .tab-item-center .tab-icon {
+            width: 52px; height: 52px;
+            background: var(--gradient-1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: white;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.5);
+        }
+
+        /* Common */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .dashboard-header { padding: 16px 20px 0; }
+        .greeting { font-size: 14px; color: var(--text-secondary); }
+        .greeting-name { font-size: 24px; font-weight: 800; margin-top: 2px; }
+
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 20px 12px;
+        }
+        .section-title { font-size: 18px; font-weight: 700; }
+        .section-link { font-size: 13px; color: var(--primary-light); cursor: pointer; }
+
+        .input-group { width: 100%; margin-bottom: 16px; text-align: left; }
+        .input-label {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .input-field {
+            width: 100%; padding: 16px 20px;
+            background: var(--bg-input); border: 2px solid var(--border);
+            border-radius: 14px; color: var(--text);
+            font-size: 16px; font-family: inherit; outline: none;
+        }
+        .input-field:focus { border-color: var(--primary); }
+
+        .btn-primary {
+            width: 100%; padding: 16px;
+            background: var(--gradient-1); border: none; border-radius: 14px;
+            color: white; font-size: 16px; font-weight: 700;
+            cursor: pointer; margin-top: 12px; font-family: inherit;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.4);
+        }
+        .btn-secondary {
+            width: 100%; padding: 16px;
+            background: transparent; border: 2px solid var(--border);
+            border-radius: 14px; color: var(--text-secondary);
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; margin-top: 12px; font-family: inherit;
+        }
+        .btn-strava {
+            width: 100%; padding: 16px;
+            background: #FC4C02; border: none; border-radius: 14px;
+            color: white; font-size: 14px; font-weight: 700;
+            cursor: pointer; margin-top: 12px; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .divider {
+            display: flex; align-items: center; gap: 16px;
+            margin: 24px 0; width: 100%;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .divider span { color: var(--text-muted); font-size: 12px; }
+
+        /* Stats */
+        .stats-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; padding: 0 20px; margin-bottom: 12px;
+        }
+        .stat-card {
+            background: var(--bg-card); border-radius: 16px;
+            padding: 16px; border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s;
+            position: relative;
+        }
+        .stat-card:hover { background: var(--bg-card-hover); transform: translateY(-1px); }
+        .stat-card::after {
+            content: '\203A'; position: absolute; top: 12px; right: 14px;
+            color: var(--text-muted); font-size: 18px;
+        }
+        .stat-icon { font-size: 20px; margin-bottom: 8px; }
+        .stat-value { font-size: 22px; font-weight: 800; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .stat-change {
+            font-size: 11px; font-weight: 600; margin-top: 6px;
+            display: inline-block; padding: 2px 8px; border-radius: 6px;
+        }
+        .stat-change.positive { background: rgba(0,184,148,0.15); color: var(--success); }
+        .stat-change.negative { background: rgba(225,112,85,0.15); color: var(--danger); }
+
+        /* Goal Banner */
+        .goal-banner {
+            margin: 16px 20px; padding: 20px;
+            background: var(--gradient-1); border-radius: 20px;
+            position: relative; overflow: hidden;
+        }
+        .goal-banner::after {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        .goal-banner-title { font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .goal-banner-value { font-size: 36px; font-weight: 800; margin: 4px 0; }
+        .goal-banner-sub { font-size: 13px; opacity: 0.85; }
+        .goal-progress-bar {
+            height: 6px; background: rgba(255,255,255,0.2);
+            border-radius: 3px; margin-top: 14px; overflow: hidden;
+        }
+        .goal-progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+        /* ====== SOLL/IST TRACKER (NEW) ====== */
+        .kurs-tracker {
+            margin: 16px 20px; background: var(--bg-card);
+            border-radius: 20px; padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .kurs-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .kurs-title { font-size: 16px; font-weight: 700; }
+        .kurs-status {
+            padding: 4px 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 700;
+        }
+        .kurs-status.on-track { background: rgba(0,184,148,0.15); color: var(--success); }
+        .kurs-status.behind { background: rgba(225,112,85,0.15); color: var(--danger); }
+        .kurs-status.ahead { background: rgba(0,206,201,0.15); color: var(--accent); }
+
+        .kurs-summary {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px; margin-bottom: 16px;
+        }
+        .kurs-summary-item { text-align: center; }
+        .kurs-summary-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kurs-summary-value { font-size: 18px; font-weight: 800; margin-top: 4px; }
+        .kurs-summary-value.green { color: var(--success); }
+        .kurs-summary-value.red { color: var(--danger); }
+        .kurs-summary-value.blue { color: var(--accent); }
+
+        .kurs-week-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .kurs-week-row:last-child { border-bottom: none; }
+        .kurs-week-num {
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            width: 28px; flex-shrink: 0;
+        }
+        .kurs-week-bar {
+            flex: 1; height: 24px; background: var(--bg);
+            border-radius: 6px; position: relative; overflow: hidden;
+        }
+        .kurs-bar-soll {
+            position: absolute; top: 0; left: 0; height: 100%;
+            background: rgba(108,92,231,0.2); border-radius: 6px;
+            border-right: 2px dashed var(--primary-light);
+        }
+        .kurs-bar-ist {
+            position: absolute; top: 0; left: 0; height: 100%;
+            border-radius: 6px;
+        }
+        .kurs-bar-ist.good { background: linear-gradient(90deg, var(--success), #00d2a0); }
+        .kurs-bar-ist.ok { background: linear-gradient(90deg, var(--warning), #f9e06c); }
+        .kurs-bar-ist.bad { background: linear-gradient(90deg, var(--danger), #e8836b); }
+        .kurs-bar-ist.future { background: var(--border); }
+        .kurs-week-values {
+            font-size: 10px; color: var(--text-secondary);
+            width: 80px; flex-shrink: 0; text-align: right;
+        }
+        .kurs-week-values strong { color: var(--text); font-weight: 700; }
+        .kurs-week-current {
+            background: rgba(108,92,231,0.08);
+            border-radius: 10px; padding: 10px 0;
+            margin: 0 -10px; padding-left: 10px; padding-right: 10px;
+            border: 1px solid rgba(108,92,231,0.2);
+        }
+
+        .kurs-this-week {
+            margin-top: 16px; padding: 16px;
+            background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(0,206,201,0.1));
+            border-radius: 14px; border: 1px solid rgba(108,92,231,0.2);
+        }
+        .kurs-this-week-title { font-size: 13px; font-weight: 700; color: var(--primary-light); margin-bottom: 8px; }
+        .kurs-this-week-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 4px 0;
+        }
+        .kurs-this-week-label { font-size: 13px; color: var(--text-secondary); }
+        .kurs-this-week-value { font-size: 14px; font-weight: 700; }
+
+        /* Streak */
+        .streak-card {
+            margin: 0 20px 12px; padding: 16px 20px;
+            background: var(--bg-card); border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 14px;
+        }
+        .streak-fire { font-size: 32px; }
+        .streak-number { font-size: 24px; font-weight: 800; }
+        .streak-label { font-size: 11px; color: var(--text-secondary); }
+        .streak-days { display: flex; gap: 5px; margin-left: auto; }
+        .streak-day {
+            width: 22px; height: 22px; border-radius: 6px;
+            background: var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; color: var(--text-muted);
+        }
+        .streak-day.done { background: var(--success); color: white; }
+        .streak-day.today { border: 2px solid var(--primary); background: transparent; }
+
+        /* Chart Container */
+        .chart-container {
+            margin: 0 20px 16px; background: var(--bg-card);
+            border-radius: 20px; padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .chart-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .chart-title { font-size: 15px; font-weight: 700; }
+        .chart-period { display: flex; gap: 4px; }
+        .chart-period button {
+            padding: 4px 12px; border: none; border-radius: 8px;
+            background: transparent; color: var(--text-muted);
+            font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .chart-period button.active { background: var(--primary); color: white; }
+        .svg-chart { width: 100%; height: 160px; }
+
+        /* Activity Card */
+        .activity-card {
+            margin: 0 20px 10px; padding: 16px 20px;
+            background: var(--bg-card); border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .activity-top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .activity-type { font-size: 20px; margin-right: 10px; }
+        .activity-name { font-size: 15px; font-weight: 700; }
+        .activity-date { font-size: 12px; color: var(--text-secondary); }
+        .activity-calories { font-size: 18px; font-weight: 800; color: var(--accent); }
+        .activity-stats { display: flex; gap: 20px; }
+        .activity-stat { font-size: 12px; color: var(--text-secondary); }
+        .activity-stat strong { color: var(--text); font-weight: 700; }
+
+        /* Weight Input */
+        .weight-input-page {
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+        .weight-input-title { font-size: 16px; color: var(--text-secondary); margin-bottom: 8px; }
+        .weight-display {
+            font-size: 72px; font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 10px 0; line-height: 1;
+        }
+        .weight-unit { font-size: 24px; color: var(--text-secondary); font-weight: 600; }
+        .weight-picker {
+            width: 100%; height: 200px; position: relative;
+            margin: 20px 0; overflow: hidden;
+        }
+        .weight-picker-gradient-top, .weight-picker-gradient-bottom {
+            position: absolute; left: 0; right: 0; height: 60px;
+            z-index: 10; pointer-events: none;
+        }
+        .weight-picker-gradient-top { top: 0; background: linear-gradient(to bottom, var(--bg), transparent); }
+        .weight-picker-gradient-bottom { bottom: 0; background: linear-gradient(to top, var(--bg), transparent); }
+        .weight-picker-center {
+            position: absolute; top: 50%; left: 10%; right: 10%;
+            height: 50px; margin-top: -25px;
+            border-top: 2px solid var(--primary); border-bottom: 2px solid var(--primary);
+            background: rgba(108, 92, 231, 0.08);
+            border-radius: 12px; z-index: 5; pointer-events: none;
+        }
+        .weight-scroll {
+            height: 100%; overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+        .weight-scroll::-webkit-scrollbar { display: none; }
+        .weight-option {
+            height: 50px; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 600; color: var(--text-muted);
+            scroll-snap-align: center;
+        }
+        .weight-option.selected { color: var(--text); font-size: 28px; font-weight: 800; }
+
+        .weight-date {
+            font-size: 14px; color: var(--text-secondary);
+            background: var(--bg-card); padding: 10px 20px; border-radius: 10px;
+        }
+        .btn-save-weight {
+            width: 100%; padding: 18px;
+            background: var(--gradient-2); border: none; border-radius: 16px;
+            color: var(--bg); font-size: 17px; font-weight: 800;
+            cursor: pointer; font-family: inherit; margin-top: 10px;
+        }
+
+        .weight-multi-hint {
+            margin-top: 12px; padding: 12px 16px;
+            background: rgba(0,206,201,0.08);
+            border: 1px solid rgba(0,206,201,0.2);
+            border-radius: 12px; text-align: center;
+        }
+        .weight-multi-hint-icon { font-size: 16px; margin-bottom: 4px; }
+        .weight-multi-hint-text { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+        .weight-multi-hint-text strong { color: var(--accent); }
+
+        .weight-today-entries {
+            width: 100%; margin-top: 16px;
+        }
+        .weight-today-title {
+            font-size: 13px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+        }
+        .weight-today-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px; background: var(--bg-card);
+            border-radius: 12px; margin-bottom: 6px;
+            border: 1px solid var(--border);
+        }
+        .weight-today-entry.lowest {
+            border-color: var(--accent);
+            background: rgba(0,206,201,0.05);
+        }
+        .weight-today-entry.lowest::after {
+            content: 'Tageswert'; font-size: 10px; font-weight: 700;
+            color: var(--accent); padding: 2px 8px; background: rgba(0,206,201,0.15);
+            border-radius: 6px;
+        }
+        .weight-entry-time { font-size: 12px; color: var(--text-secondary); }
+        .weight-entry-value { font-size: 16px; font-weight: 700; }
+
+        .weight-history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px; background: var(--bg-card);
+            border-radius: 12px; margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        .weight-history-date { font-size: 13px; color: var(--text-secondary); }
+        .weight-history-value { font-size: 18px; font-weight: 700; }
+
+        /* Team */
+        .team-selector {
+            display: flex; gap: 8px; padding: 8px 20px;
+            overflow-x: auto;
+        }
+        .team-selector::-webkit-scrollbar { display: none; }
+        .team-chip {
+            padding: 10px 20px; border-radius: 14px;
+            border: 2px solid var(--border);
+            background: transparent; color: var(--text-secondary);
+            font-size: 13px; font-weight: 600; white-space: nowrap;
+            cursor: pointer; font-family: inherit; transition: all 0.3s;
+        }
+        .team-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .team-chip.add {
+            border-style: dashed; color: var(--text-muted);
+        }
+
+        .team-goal-card {
+            margin: 12px 20px; padding: 24px;
+            background: linear-gradient(135deg, #00CEC9, #6C5CE7);
+            border-radius: 20px; position: relative; overflow: hidden;
+        }
+        .team-goal-card::after {
+            content: ''; position: absolute; bottom: -40px; right: -20px;
+            width: 140px; height: 140px;
+            background: rgba(255,255,255,0.08); border-radius: 50%;
+        }
+        .team-goal-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.9; }
+        .team-goal-value { font-size: 40px; font-weight: 800; margin: 6px 0; }
+        .team-goal-sub { font-size: 13px; opacity: 0.85; }
+
+        .team-member {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 20px; margin: 0 20px 8px;
+            background: var(--bg-card); border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .team-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 700; flex-shrink: 0;
+        }
+        .team-member-info { flex: 1; }
+        .team-member-name { font-size: 15px; font-weight: 700; }
+        .team-member-stats { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .team-member-loss { font-size: 16px; font-weight: 800; color: var(--success); }
+        .team-member-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; }
+        .team-member-bar-fill { height: 100%; border-radius: 2px; background: var(--gradient-2); }
+        .privacy-badge {
+            font-size: 10px; padding: 3px 8px; border-radius: 6px;
+            background: rgba(108,92,231,0.2); color: var(--primary-light); font-weight: 600;
+        }
+
+        /* Strava */
+        .strava-connected {
+            margin: 16px 20px; padding: 16px 20px;
+            background: linear-gradient(135deg, #FC4C02, #FF7043);
+            border-radius: 16px; display: flex; align-items: center; gap: 14px;
+        }
+        .strava-info-title { font-weight: 700; font-size: 14px; }
+        .strava-info-sub { font-size: 12px; opacity: 0.85; }
+
+        /* Charts Page */
+        .chart-tab-bar { display: flex; gap: 8px; padding: 8px 20px; overflow-x: auto; }
+        .chart-tab-bar::-webkit-scrollbar { display: none; }
+        .chart-tab {
+            padding: 8px 18px; border-radius: 10px;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-secondary); font-size: 13px; font-weight: 600;
+            white-space: nowrap; cursor: pointer; font-family: inherit;
+        }
+        .chart-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+        .big-chart {
+            margin: 16px 20px; background: var(--bg-card);
+            border-radius: 20px; padding: 20px;
+            border: 1px solid var(--border);
+        }
+        .big-chart-svg { width: 100%; height: 220px; }
+        .chart-legend {
+            display: flex; gap: 16px; margin-top: 16px; justify-content: center;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .photo-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 4px; padding: 0 20px; margin-bottom: 16px;
+        }
+        .photo-placeholder {
+            aspect-ratio: 1; background: var(--bg-card);
+            border-radius: 10px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 4px; cursor: pointer;
+        }
+        .photo-placeholder .icon { font-size: 24px; color: var(--text-muted); }
+        .photo-placeholder .label { font-size: 9px; color: var(--text-muted); }
+        .photo-placeholder.has-photo { border-color: var(--primary); }
+
+        /* Detail Overlay */
+        .detail-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 200;
+        }
+        .detail-overlay.active { display: block; }
+        .detail-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            overflow-y: auto; padding: 20px;
+        }
+        .detail-back {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 0; cursor: pointer; color: var(--primary-light);
+            font-size: 14px; font-weight: 600; margin-bottom: 16px;
+            background: none; border: none; font-family: inherit;
+        }
+        .detail-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+        .detail-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .detail-big-value {
+            font-size: 56px; font-weight: 800; line-height: 1;
+            background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .detail-unit { font-size: 20px; color: var(--text-secondary); }
+        .detail-section { margin-top: 24px; }
+        .detail-section-title { font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .detail-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row-label { font-size: 14px; color: var(--text-secondary); }
+        .detail-row-value { font-size: 15px; font-weight: 700; }
+
+        /* Profile */
+        .profile-header { text-align: center; padding: 30px 20px; }
+        .profile-avatar {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 12px;
+        }
+        .profile-name { font-size: 22px; font-weight: 800; }
+        .profile-since { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .profile-stats-row {
+            display: flex; justify-content: center; gap: 30px; margin-top: 20px;
+        }
+        .profile-stat { text-align: center; }
+        .profile-stat-value { font-size: 22px; font-weight: 800; }
+        .profile-stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+        .settings-group { margin: 0 20px 24px; }
+        .settings-group-title {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px;
+        }
+        .settings-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; background: var(--bg-card);
+            border: 1px solid var(--border); cursor: pointer;
+        }
+        .settings-item:first-of-type { border-radius: 14px 14px 0 0; }
+        .settings-item:last-of-type { border-radius: 0 0 14px 14px; }
+        .settings-item:only-of-type { border-radius: 14px; }
+        .settings-item + .settings-item { border-top: none; }
+        .settings-item-left { display: flex; align-items: center; gap: 14px; }
+        .settings-item-icon { font-size: 20px; }
+        .settings-item-label { font-size: 15px; font-weight: 500; }
+        .settings-item-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        .toggle {
+            width: 48px; height: 28px; background: var(--border);
+            border-radius: 14px; position: relative; cursor: pointer;
+        }
+        .toggle.active { background: var(--success); }
+        .toggle::after {
+            content: ''; width: 22px; height: 22px;
+            background: white; border-radius: 50%;
+            position: absolute; top: 3px; left: 3px; transition: all 0.3s;
+        }
+        .toggle.active::after { left: 23px; }
+
+        /* Calorie Ring */
+        .calorie-ring-container {
+            display: flex; justify-content: center; align-items: center; gap: 24px; padding: 20px;
+        }
+        .calorie-ring { width: 120px; height: 120px; position: relative; }
+        .calorie-ring svg { transform: rotate(-90deg); }
+        .calorie-ring-center {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); text-align: center;
+        }
+        .calorie-ring-value { font-size: 24px; font-weight: 800; }
+        .calorie-ring-label { font-size: 10px; color: var(--text-secondary); }
+        .calorie-details { display: flex; flex-direction: column; gap: 10px; }
+        .calorie-detail-item { display: flex; align-items: center; gap: 10px; }
+        .calorie-detail-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .calorie-detail-label { font-size: 12px; color: var(--text-secondary); }
+        .calorie-detail-value { font-size: 14px; font-weight: 700; }
+
+        /* Team Settings Modal */
+        .team-settings {
+            margin: 12px 20px; padding: 20px;
+            background: var(--bg-card); border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .team-settings-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .team-settings-row:last-child { border-bottom: none; }
+        .team-settings-label { font-size: 13px; color: var(--text-secondary); }
+        .team-settings-value { font-size: 14px; font-weight: 700; }
+        .team-settings-edit {
+            font-size: 12px; color: var(--primary-light); cursor: pointer;
+            background: none; border: none; font-family: inherit; font-weight: 600;
+        }
+
+        .team-invite-box {
+            margin: 12px 20px; padding: 16px;
+            background: rgba(108,92,231,0.08);
+            border: 1px dashed var(--primary);
+            border-radius: 14px; text-align: center;
+        }
+        .team-invite-code {
+            font-size: 28px; font-weight: 800; letter-spacing: 8px;
+            color: var(--primary-light); margin: 8px 0;
+        }
+        .team-invite-label { font-size: 12px; color: var(--text-secondary); }
+        .team-invite-btn {
+            margin-top: 10px; padding: 10px 24px;
+            background: var(--primary); border: none; border-radius: 10px;
+            color: white; font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+        }
+
+        @media (min-width: 800px) {
+            .phone-frame {
+                width: 100%; max-width: 100%; height: 100vh;
+                margin: 0; border-radius: 0; border: none; box-shadow: none;
+            }
+            .notch { display: none; }
+            .screen { height: 100%; max-width: 600px; margin: 0 auto; }
+            .tab-bar {
+                max-width: 600px; margin: 0 auto;
+                left: 50%; transform: translateX(-50%);
+                border-radius: 20px 20px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="notch"></div>
+
+    <div class="screen-nav">
+        <button class="active" onclick="showScreen('login')">Login</button>
+        <button onclick="showScreen('dashboard')">Home</button>
+        <button onclick="showScreen('weight')">Wiegen</button>
+        <button onclick="showScreen('team')">Team</button>
+        <button onclick="showScreen('activity')">Aktivit.</button>
+        <button onclick="showScreen('charts')">Charts</button>
+        <button onclick="showScreen('profile')">Profil</button>
+    </div>
+
+    <div class="screen" id="mainScreen">
+
+        <!-- =================== LOGIN =================== -->
+        <div class="page active" id="page-login">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 30px;text-align:center;">
+                <div style="width:100px;height:100px;background:var(--gradient-1);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:24px;box-shadow:0 8px 32px rgba(108,92,231,0.4);">&#127947;</div>
+                <div style="font-size:28px;font-weight:800;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">10in10</div>
+                <div style="color:var(--text-secondary);font-size:14px;margin-bottom:40px;">Gemeinsam zum Ziel</div>
+
+                <div class="input-group">
+                    <label class="input-label">Name</label>
+                    <input class="input-field" type="text" placeholder="Dein Name" value="Max">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">PIN</label>
+                    <input class="input-field" type="password" placeholder="Dein PIN" value="****">
+                </div>
+
+                <button class="btn-primary" onclick="showScreen('dashboard')">Anmelden</button>
+                <button class="btn-secondary">Neu registrieren</button>
+                <div class="divider"><span>OPTIONAL</span></div>
+                <button class="btn-strava">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+                    Mit Strava verbinden
+                </button>
+            </div>
+        </div>
+
+        <!-- =================== DASHBOARD =================== -->
+        <div class="page" id="page-dashboard">
+            <div class="dashboard-header">
+                <div class="greeting">Guten Morgen,</div>
+                <div class="greeting-name">Max &#128170;</div>
+            </div>
+
+            <div class="goal-banner">
+                <div class="goal-banner-title">Dein Ziel</div>
+                <div class="goal-banner-value">-3.5 kg</div>
+                <div class="goal-banner-sub">von 10 kg in 10 Wochen &bull; Woche 4 von 10</div>
+                <div class="goal-progress-bar">
+                    <div class="goal-progress-fill" style="width:35%;background:white;"></div>
+                </div>
+            </div>
+
+            <!-- NEW: Soll/Ist Kurs-Tracker -->
+            <div class="kurs-tracker">
+                <div class="kurs-header">
+                    <div class="kurs-title">&#127919; Bist du auf Kurs?</div>
+                    <div class="kurs-status on-track">&#10003; Auf Kurs</div>
+                </div>
+
+                <div class="kurs-summary">
+                    <div class="kurs-summary-item">
+                        <div class="kurs-summary-label">Soll (Woche 4)</div>
+                        <div class="kurs-summary-value">-4.0 kg</div>
+                    </div>
+                    <div class="kurs-summary-item">
+                        <div class="kurs-summary-label">Ist</div>
+                        <div class="kurs-summary-value green">-3.5 kg</div>
+                    </div>
+                    <div class="kurs-summary-item">
+                        <div class="kurs-summary-label">Differenz</div>
+                        <div class="kurs-summary-value" style="color:var(--warning);">+0.5 kg</div>
+                    </div>
+                </div>
+
+                <!-- Weekly Soll/Ist Bars -->
+                <div class="kurs-week-row">
+                    <div class="kurs-week-num">W1</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:10%"></div>
+                        <div class="kurs-bar-ist good" style="width:12%"></div>
+                    </div>
+                    <div class="kurs-week-values">Soll -1.0 &bull; <strong>-1.2</strong></div>
+                </div>
+                <div class="kurs-week-row">
+                    <div class="kurs-week-num">W2</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:20%"></div>
+                        <div class="kurs-bar-ist good" style="width:22%"></div>
+                    </div>
+                    <div class="kurs-week-values">Soll -2.0 &bull; <strong>-2.2</strong></div>
+                </div>
+                <div class="kurs-week-row">
+                    <div class="kurs-week-num">W3</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:30%"></div>
+                        <div class="kurs-bar-ist ok" style="width:28%"></div>
+                    </div>
+                    <div class="kurs-week-values">Soll -3.0 &bull; <strong>-2.8</strong></div>
+                </div>
+                <div class="kurs-week-row kurs-week-current">
+                    <div class="kurs-week-num" style="color:var(--primary-light);font-weight:800;">W4</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:40%"></div>
+                        <div class="kurs-bar-ist ok" style="width:35%"></div>
+                    </div>
+                    <div class="kurs-week-values">Soll -4.0 &bull; <strong style="color:var(--warning);">-3.5</strong></div>
+                </div>
+                <div class="kurs-week-row">
+                    <div class="kurs-week-num">W5</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:50%"></div>
+                        <div class="kurs-bar-ist future" style="width:0%"></div>
+                    </div>
+                    <div class="kurs-week-values" style="color:var(--text-muted);">Soll -5.0</div>
+                </div>
+                <div class="kurs-week-row">
+                    <div class="kurs-week-num">W6-10</div>
+                    <div class="kurs-week-bar">
+                        <div class="kurs-bar-soll" style="width:100%"></div>
+                    </div>
+                    <div class="kurs-week-values" style="color:var(--text-muted);">Ziel -10.0</div>
+                </div>
+
+                <!-- This Week Recommendation -->
+                <div class="kurs-this-week">
+                    <div class="kurs-this-week-title">&#128161; Dein Wochenplan (Woche 4)</div>
+                    <div class="kurs-this-week-row">
+                        <span class="kurs-this-week-label">Wochenziel</span>
+                        <span class="kurs-this-week-value" style="color:var(--primary-light);">-1.0 kg</span>
+                    </div>
+                    <div class="kurs-this-week-row">
+                        <span class="kurs-this-week-label">Noch abzunehmen diese Woche</span>
+                        <span class="kurs-this-week-value" style="color:var(--warning);">-0.5 kg</span>
+                    </div>
+                    <div class="kurs-this-week-row">
+                        <span class="kurs-this-week-label">Empf. t&auml;gl. Defizit</span>
+                        <span class="kurs-this-week-value" style="color:var(--accent);">~550 kcal</span>
+                    </div>
+                    <div class="kurs-this-week-row">
+                        <span class="kurs-this-week-label">Empf. Trainings noch</span>
+                        <span class="kurs-this-week-value">2 Einheiten</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streak -->
+            <div class="streak-card">
+                <div class="streak-fire">&#128293;</div>
+                <div>
+                    <div class="streak-number">12</div>
+                    <div class="streak-label">Tage in Folge gewogen</div>
+                </div>
+                <div class="streak-days">
+                    <div class="streak-day done">M</div>
+                    <div class="streak-day done">D</div>
+                    <div class="streak-day done">M</div>
+                    <div class="streak-day done">D</div>
+                    <div class="streak-day done">F</div>
+                    <div class="streak-day today">S</div>
+                    <div class="streak-day">S</div>
+                </div>
+            </div>
+
+            <!-- Stats with clickable cards -->
+            <div class="stats-row">
+                <div class="stat-card" onclick="showDetail('weight-detail')">
+                    <div class="stat-icon">&#9878;&#65039;</div>
+                    <div class="stat-value">86.5</div>
+                    <div class="stat-label">Aktuelles Gewicht (kg)</div>
+                    <div class="stat-change positive">&#9660; 0.3 kg</div>
+                </div>
+                <div class="stat-card" onclick="showDetail('calories-detail')">
+                    <div class="stat-icon">&#128293;</div>
+                    <div class="stat-value">2,340</div>
+                    <div class="stat-label">Kalorien heute</div>
+                    <div class="stat-change positive">&#9650; 340 aktiv</div>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-card" onclick="showDetail('training-detail')">
+                    <div class="stat-icon">&#127939;</div>
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Trainings diese Woche</div>
+                    <div class="stat-change positive">&#9650; 1 mehr</div>
+                </div>
+                <div class="stat-card" onclick="showDetail('average-detail')">
+                    <div class="stat-icon">&#128200;</div>
+                    <div class="stat-value">85.7</div>
+                    <div class="stat-label">&#216; Gewicht (7 Tage)</div>
+                    <div class="stat-change positive">&#9660; 0.5 kg</div>
+                </div>
+            </div>
+
+            <!-- Mini Chart -->
+            <div class="section-header">
+                <div class="section-title">Gewichtsverlauf</div>
+                <div class="section-link" onclick="showScreen('charts')">Alle anzeigen &rarr;</div>
+            </div>
+            <div class="chart-container">
+                <svg class="svg-chart" viewBox="0 0 320 140">
+                    <line x1="0" y1="0" x2="320" y2="0" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="0" y1="35" x2="320" y2="35" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="0" y1="70" x2="320" y2="70" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="0" y1="105" x2="320" y2="105" stroke="#2A2A45" stroke-width="0.5"/>
+                    <text x="0" y="12" fill="#6C6C8A" font-size="9">90</text>
+                    <text x="0" y="47" fill="#6C6C8A" font-size="9">88</text>
+                    <text x="0" y="82" fill="#6C6C8A" font-size="9">86</text>
+                    <text x="0" y="117" fill="#6C6C8A" font-size="9">84</text>
+
+                    <!-- Soll line (planned) -->
+                    <polyline points="30,5 110,40 190,75 270,110 310,125"
+                              fill="none" stroke="#A29BFE" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+                    <text x="270" y="120" fill="#A29BFE" font-size="7" opacity="0.6">Soll</text>
+
+                    <!-- Goal line -->
+                    <line x1="20" y1="130" x2="310" y2="130" stroke="#E17055" stroke-width="1" stroke-dasharray="4,4"/>
+                    <text x="270" y="127" fill="#E17055" font-size="8">Ziel: 80 kg</text>
+
+                    <defs>
+                        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" style="stop-color:#6C5CE7;stop-opacity:0.3"/>
+                            <stop offset="100%" style="stop-color:#6C5CE7;stop-opacity:0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M30,10 L70,15 L110,25 L150,20 L190,40 L230,50 L270,55 L310,60 L310,140 L30,140 Z" fill="url(#areaGrad)"/>
+                    <polyline points="30,10 70,15 110,25 150,20 190,40 230,50 270,55 310,60"
+                              fill="none" stroke="#6C5CE7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="310" cy="60" r="5" fill="#A29BFE" stroke="white" stroke-width="2"/>
+                </svg>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="section-header">
+                <div class="section-title">Letzte Aktivit&auml;ten</div>
+                <div class="section-link" onclick="showScreen('activity')">Alle &rarr;</div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-top">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="activity-type">&#127939;</span>
+                        <div>
+                            <div class="activity-name">Morgenlauf</div>
+                            <div class="activity-date">Heute, 07:15</div>
+                        </div>
+                    </div>
+                    <div class="activity-calories">342 kcal</div>
+                </div>
+                <div class="activity-stats">
+                    <div class="activity-stat"><strong>5.2 km</strong> Distanz</div>
+                    <div class="activity-stat"><strong>28:40</strong> Dauer</div>
+                    <div class="activity-stat"><strong>152</strong> &#216; Puls</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== WEIGHT INPUT =================== -->
+        <div class="page" id="page-weight">
+            <div class="weight-input-page">
+                <div class="weight-input-title">Heutiges Gewicht</div>
+                <div class="weight-date">&#128197; Samstag, 29. M&auml;rz 2026</div>
+
+                <div class="weight-display" id="weightDisplay">86.5</div>
+                <div class="weight-unit">kg</div>
+
+                <div class="weight-picker">
+                    <div class="weight-picker-gradient-top"></div>
+                    <div class="weight-picker-gradient-bottom"></div>
+                    <div class="weight-picker-center"></div>
+                    <div class="weight-scroll" id="weightScroll"></div>
+                </div>
+
+                <button class="btn-save-weight">&#10003; Gewicht speichern</button>
+
+                <!-- NEW: Multiple entries hint -->
+                <div class="weight-multi-hint">
+                    <div class="weight-multi-hint-icon">&#128161;</div>
+                    <div class="weight-multi-hint-text">
+                        Du kannst <strong>mehrmals t&auml;glich</strong> wiegen. F&uuml;r die Auswertung z&auml;hlt immer der <strong>niedrigste Wert</strong> des Tages &mdash; so gleichen sich Schwankungen aus!
+                    </div>
+                </div>
+
+                <!-- NEW: Today's entries -->
+                <div class="weight-today-entries">
+                    <div class="weight-today-title">Heute (3 Messungen)</div>
+                    <div class="weight-today-entry">
+                        <div>
+                            <div class="weight-entry-value">87.1 kg</div>
+                            <div class="weight-entry-time">07:05 &bull; vor dem Fr&uuml;hst&uuml;ck</div>
+                        </div>
+                    </div>
+                    <div class="weight-today-entry lowest">
+                        <div>
+                            <div class="weight-entry-value">86.5 kg</div>
+                            <div class="weight-entry-time">12:30 &bull; nach dem Training</div>
+                        </div>
+                    </div>
+                    <div class="weight-today-entry">
+                        <div>
+                            <div class="weight-entry-value">86.8 kg</div>
+                            <div class="weight-entry-time">20:15 &bull; abends</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="width:100%;margin-top:24px;">
+                    <div class="section-header" style="padding:16px 0 10px;">
+                        <div class="section-title">Letzte Tage</div>
+                    </div>
+                    <div class="weight-history-item">
+                        <div>
+                            <div class="weight-history-value">86.5 kg <span style="font-size:11px;color:var(--text-muted);">(3x)</span></div>
+                            <div class="weight-history-date">Freitag, 28. M&auml;rz</div>
+                        </div>
+                        <div class="stat-change positive">-0.3</div>
+                    </div>
+                    <div class="weight-history-item">
+                        <div>
+                            <div class="weight-history-value">86.8 kg <span style="font-size:11px;color:var(--text-muted);">(2x)</span></div>
+                            <div class="weight-history-date">Donnerstag, 27. M&auml;rz</div>
+                        </div>
+                        <div class="stat-change positive">-0.2</div>
+                    </div>
+                    <div class="weight-history-item">
+                        <div>
+                            <div class="weight-history-value">87.0 kg <span style="font-size:11px;color:var(--text-muted);">(1x)</span></div>
+                            <div class="weight-history-date">Mittwoch, 26. M&auml;rz</div>
+                        </div>
+                        <div class="stat-change negative">+0.1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== TEAM =================== -->
+        <div class="page" id="page-team">
+            <div class="dashboard-header">
+                <div class="greeting">Team Challenge</div>
+                <div class="greeting-name">Zusammen stark &#128170;</div>
+            </div>
+
+            <!-- NEW: Multi-Team Selector -->
+            <div class="team-selector">
+                <button class="team-chip active">&#128293; Abnehm-Crew</button>
+                <button class="team-chip">&#127939; B&uuml;ro-Challenge</button>
+                <button class="team-chip add">+ Neues Team</button>
+            </div>
+
+            <div class="team-goal-card">
+                <div class="team-goal-title">Gemeinsames Ziel: Abnehm-Crew</div>
+                <div class="team-goal-value">-12.8 kg</div>
+                <div class="team-goal-sub">von 30 kg zusammen &bull; 4 Teilnehmer &bull; Woche 4/10</div>
+                <div class="goal-progress-bar">
+                    <div class="goal-progress-fill" style="width:43%;background:white;"></div>
+                </div>
+            </div>
+
+            <!-- NEW: Team Settings -->
+            <div class="team-settings">
+                <div class="team-settings-row">
+                    <div>
+                        <div class="team-settings-label">Teamziel</div>
+                        <div class="team-settings-value">30 kg in 10 Wochen</div>
+                    </div>
+                    <button class="team-settings-edit">Bearbeiten</button>
+                </div>
+                <div class="team-settings-row">
+                    <div>
+                        <div class="team-settings-label">Zeitraum</div>
+                        <div class="team-settings-value">01.03. &ndash; 10.05.2026</div>
+                    </div>
+                    <button class="team-settings-edit">Bearbeiten</button>
+                </div>
+                <div class="team-settings-row">
+                    <div>
+                        <div class="team-settings-label">Erstellt von</div>
+                        <div class="team-settings-value">Max</div>
+                    </div>
+                    <span style="font-size:12px;color:var(--text-muted);">Admin</span>
+                </div>
+            </div>
+
+            <!-- NEW: Invite Code -->
+            <div class="team-invite-box">
+                <div class="team-invite-label">Einladungscode</div>
+                <div class="team-invite-code">XK7M2P</div>
+                <div class="team-invite-label">Teile diesen Code mit deinen Freunden</div>
+                <button class="team-invite-btn">&#128279; Code kopieren</button>
+            </div>
+
+            <!-- Calorie Ring -->
+            <div class="chart-container">
+                <div class="chart-title" style="margin-bottom:12px;">Team Kalorien heute</div>
+                <div class="calorie-ring-container">
+                    <div class="calorie-ring">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#2A2A45" stroke-width="10"/>
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="url(#ringGrad)" stroke-width="10"
+                                    stroke-dasharray="235" stroke-dashoffset="70" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00CEC9"/>
+                                    <stop offset="100%" style="stop-color:#6C5CE7"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="calorie-ring-center">
+                            <div class="calorie-ring-value">8,420</div>
+                            <div class="calorie-ring-label">kcal Team</div>
+                        </div>
+                    </div>
+                    <div class="calorie-details">
+                        <div class="calorie-detail-item">
+                            <div class="calorie-detail-dot" style="background:var(--accent)"></div>
+                            <div>
+                                <div class="calorie-detail-label">Aktiv verbrannt</div>
+                                <div class="calorie-detail-value">3,240 kcal</div>
+                            </div>
+                        </div>
+                        <div class="calorie-detail-item">
+                            <div class="calorie-detail-dot" style="background:var(--primary)"></div>
+                            <div>
+                                <div class="calorie-detail-label">Grundumsatz</div>
+                                <div class="calorie-detail-value">5,180 kcal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">Rangliste</div>
+                <div class="section-link">Diese Woche</div>
+            </div>
+
+            <div class="team-member">
+                <div class="team-avatar" style="background:linear-gradient(135deg,#6C5CE7,#A29BFE);">&#129351;</div>
+                <div class="team-member-info">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div class="team-member-name">Sarah</div>
+                        <div class="team-member-loss">-4.2 kg</div>
+                    </div>
+                    <div class="team-member-stats">67.8 kg &bull; 12 Trainings &bull; <span class="privacy-badge">&#128275; Offen</span></div>
+                    <div class="team-member-bar"><div class="team-member-bar-fill" style="width:84%"></div></div>
+                </div>
+            </div>
+            <div class="team-member">
+                <div class="team-avatar" style="background:linear-gradient(135deg,#00CEC9,#81ECEC);">&#129352;</div>
+                <div class="team-member-info">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div class="team-member-name">Max (Du)</div>
+                        <div class="team-member-loss">-3.5 kg</div>
+                    </div>
+                    <div class="team-member-stats">86.5 kg &bull; 9 Trainings &bull; <span class="privacy-badge">&#128275; Offen</span></div>
+                    <div class="team-member-bar"><div class="team-member-bar-fill" style="width:70%"></div></div>
+                </div>
+            </div>
+            <div class="team-member">
+                <div class="team-avatar" style="background:linear-gradient(135deg,#FDCB6E,#E17055);">&#129353;</div>
+                <div class="team-member-info">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div class="team-member-name">Tom</div>
+                        <div class="team-member-loss">-3.1 kg</div>
+                    </div>
+                    <div class="team-member-stats">92.4 kg &bull; 7 Trainings &bull; <span class="privacy-badge">&#128275; Offen</span></div>
+                    <div class="team-member-bar"><div class="team-member-bar-fill" style="width:62%"></div></div>
+                </div>
+            </div>
+            <div class="team-member">
+                <div class="team-avatar" style="background:linear-gradient(135deg,#636e72,#b2bec3);">4</div>
+                <div class="team-member-info">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div class="team-member-name">Lisa</div>
+                        <div class="team-member-loss">-2.0 kg</div>
+                    </div>
+                    <div class="team-member-stats">Nur Gesamtfortschritt &bull; <span class="privacy-badge">&#128274; Privat</span></div>
+                    <div class="team-member-bar"><div class="team-member-bar-fill" style="width:40%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== ACTIVITY =================== -->
+        <div class="page" id="page-activity">
+            <div class="dashboard-header">
+                <div class="greeting">Aktivit&auml;ten</div>
+                <div class="greeting-name">Deine Bewegung &#127939;</div>
+            </div>
+
+            <div class="strava-connected">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+                <div>
+                    <div class="strava-info-title">Strava verbunden</div>
+                    <div class="strava-info-sub">Automatischer Sync aktiv</div>
+                </div>
+                <div style="font-size:22px;">&#10003;</div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card" style="cursor:default;">
+                    <div class="stat-icon">&#128293;</div>
+                    <div class="stat-value">4,820</div>
+                    <div class="stat-label">kcal diese Woche</div>
+                </div>
+                <div class="stat-card" style="cursor:default;">
+                    <div class="stat-icon">&#9201;</div>
+                    <div class="stat-value">5:42h</div>
+                    <div class="stat-label">Trainingszeit</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Kalorienverbrauch</div>
+                    <div class="chart-period">
+                        <button class="active">Woche</button>
+                        <button>Monat</button>
+                    </div>
+                </div>
+                <svg class="svg-chart" viewBox="0 0 320 140">
+                    <defs>
+                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" style="stop-color:#00CEC9"/>
+                            <stop offset="100%" style="stop-color:#6C5CE7"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="20" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="20" y="60" width="28" height="80" rx="6" fill="url(#barGrad)"/>
+                    <rect x="62" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="62" y="45" width="28" height="95" rx="6" fill="url(#barGrad)"/>
+                    <rect x="104" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="104" y="70" width="28" height="70" rx="6" fill="url(#barGrad)"/>
+                    <rect x="146" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="146" y="30" width="28" height="110" rx="6" fill="url(#barGrad)"/>
+                    <rect x="188" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="188" y="55" width="28" height="85" rx="6" fill="url(#barGrad)"/>
+                    <rect x="230" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="230" y="50" width="28" height="90" rx="6" fill="url(#barGrad)"/>
+                    <rect x="272" y="40" width="28" height="100" rx="6" fill="#2A2A45"/>
+                    <rect x="272" y="90" width="28" height="50" rx="6" fill="#6C5CE740"/>
+                    <text x="34" y="55" fill="#A0A0C0" font-size="8" text-anchor="middle">680</text>
+                    <text x="76" y="40" fill="#A0A0C0" font-size="8" text-anchor="middle">820</text>
+                    <text x="118" y="65" fill="#A0A0C0" font-size="8" text-anchor="middle">520</text>
+                    <text x="160" y="25" fill="#A0A0C0" font-size="8" text-anchor="middle">940</text>
+                    <text x="202" y="50" fill="#A0A0C0" font-size="8" text-anchor="middle">720</text>
+                    <text x="244" y="45" fill="#A0A0C0" font-size="8" text-anchor="middle">800</text>
+                    <text x="286" y="85" fill="#6C6C8A" font-size="8" text-anchor="middle">340</text>
+                    <text x="34" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Mo</text>
+                    <text x="76" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Di</text>
+                    <text x="118" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Mi</text>
+                    <text x="160" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Do</text>
+                    <text x="202" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Fr</text>
+                    <text x="244" y="138" fill="#6C6C8A" font-size="9" text-anchor="middle">Sa</text>
+                    <text x="286" y="138" fill="#A29BFE" font-size="9" text-anchor="middle">So</text>
+                </svg>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">Aktivit&auml;ten</div>
+                <div class="section-link">Manuell hinzuf&uuml;gen +</div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-top">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="activity-type">&#127939;</span>
+                        <div>
+                            <div class="activity-name">Morgenlauf</div>
+                            <div class="activity-date">Heute, 07:15 &bull; via Strava</div>
+                        </div>
+                    </div>
+                    <div class="activity-calories">342 kcal</div>
+                </div>
+                <div class="activity-stats">
+                    <div class="activity-stat"><strong>5.2 km</strong> Distanz</div>
+                    <div class="activity-stat"><strong>28:40</strong> Dauer</div>
+                    <div class="activity-stat"><strong>5:31</strong> Pace</div>
+                </div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-top">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="activity-type">&#128692;</span>
+                        <div>
+                            <div class="activity-name">Radtour Stadtpark</div>
+                            <div class="activity-date">Gestern, 17:30 &bull; via Strava</div>
+                        </div>
+                    </div>
+                    <div class="activity-calories">520 kcal</div>
+                </div>
+                <div class="activity-stats">
+                    <div class="activity-stat"><strong>22.1 km</strong> Distanz</div>
+                    <div class="activity-stat"><strong>58:12</strong> Dauer</div>
+                    <div class="activity-stat"><strong>22.8</strong> km/h</div>
+                </div>
+            </div>
+            <div class="activity-card">
+                <div class="activity-top">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span class="activity-type">&#127947;</span>
+                        <div>
+                            <div class="activity-name">Krafttraining</div>
+                            <div class="activity-date">27. M&auml;rz, 18:00 &bull; Manuell</div>
+                        </div>
+                    </div>
+                    <div class="activity-calories">280 kcal</div>
+                </div>
+                <div class="activity-stats">
+                    <div class="activity-stat"><strong>45 min</strong> Dauer</div>
+                    <div class="activity-stat"><strong>8</strong> &Uuml;bungen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================== CHARTS =================== -->
+        <div class="page" id="page-charts">
+            <div class="dashboard-header">
+                <div class="greeting">Statistiken</div>
+                <div class="greeting-name">Dein Fortschritt &#128200;</div>
+            </div>
+
+            <div class="chart-tab-bar">
+                <button class="chart-tab active">Gewicht</button>
+                <button class="chart-tab">Kalorien</button>
+                <button class="chart-tab">Training</button>
+                <button class="chart-tab">BMI</button>
+            </div>
+
+            <div class="big-chart">
+                <div class="chart-header">
+                    <div class="chart-title">Gewichtsverlauf</div>
+                    <div class="chart-period">
+                        <button>4W</button>
+                        <button class="active">10W</button>
+                        <button>Alle</button>
+                    </div>
+                </div>
+                <svg class="big-chart-svg" viewBox="0 0 320 200">
+                    <line x1="25" y1="10" x2="310" y2="10" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="25" y1="50" x2="310" y2="50" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="25" y1="90" x2="310" y2="90" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="25" y1="130" x2="310" y2="130" stroke="#2A2A45" stroke-width="0.5"/>
+                    <line x1="25" y1="170" x2="310" y2="170" stroke="#2A2A45" stroke-width="0.5"/>
+                    <text x="20" y="14" fill="#6C6C8A" font-size="8" text-anchor="end">92</text>
+                    <text x="20" y="54" fill="#6C6C8A" font-size="8" text-anchor="end">89</text>
+                    <text x="20" y="94" fill="#6C6C8A" font-size="8" text-anchor="end">86</text>
+                    <text x="20" y="134" fill="#6C6C8A" font-size="8" text-anchor="end">83</text>
+                    <text x="20" y="174" fill="#6C6C8A" font-size="8" text-anchor="end">80</text>
+
+                    <!-- Soll line (planned trajectory) -->
+                    <polyline points="30,10 60,28 90,46 120,64 150,82 180,100 210,118 240,136 270,154 300,170"
+                              fill="none" stroke="#A29BFE" stroke-width="2" stroke-dasharray="8,4" opacity="0.4"/>
+
+                    <!-- Goal line -->
+                    <line x1="25" y1="170" x2="310" y2="170" stroke="#E17055" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <text x="300" y="165" fill="#E17055" font-size="8" text-anchor="end">Ziel: 80 kg</text>
+
+                    <defs>
+                        <linearGradient id="bigAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" style="stop-color:#6C5CE7;stop-opacity:0.2"/>
+                            <stop offset="100%" style="stop-color:#6C5CE7;stop-opacity:0"/>
+                        </linearGradient>
+                        <linearGradient id="bigLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#6C5CE7"/>
+                            <stop offset="100%" style="stop-color:#00CEC9"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M30,15 L60,20 L90,30 L120,35 L150,50 L180,60 L210,75 L240,85 L270,93 L300,95 L300,200 L30,200 Z"
+                          fill="url(#bigAreaGrad)"/>
+
+                    <!-- Daily dots -->
+                    <circle cx="30" cy="12" r="2" fill="#6C5CE760"/>
+                    <circle cx="37" cy="18" r="2" fill="#6C5CE760"/>
+                    <circle cx="44" cy="15" r="2" fill="#6C5CE760"/>
+                    <circle cx="60" cy="22" r="2" fill="#6C5CE760"/>
+                    <circle cx="67" cy="19" r="2" fill="#6C5CE760"/>
+                    <circle cx="90" cy="32" r="2" fill="#6C5CE760"/>
+                    <circle cx="97" cy="30" r="2" fill="#6C5CE760"/>
+                    <circle cx="120" cy="36" r="2" fill="#6C5CE760"/>
+                    <circle cx="150" cy="52" r="2" fill="#6C5CE760"/>
+                    <circle cx="180" cy="60" r="2" fill="#6C5CE760"/>
+                    <circle cx="210" cy="76" r="2" fill="#6C5CE760"/>
+                    <circle cx="240" cy="88" r="2" fill="#6C5CE760"/>
+
+                    <!-- Weekly average line -->
+                    <polyline points="30,15 60,20 90,30 120,35 150,50 180,60 210,75 240,85 270,93 300,95"
+                              fill="none" stroke="url(#bigLineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="300" cy="95" r="6" fill="#00CEC9" stroke="white" stroke-width="2"/>
+                    <text x="280" y="88" fill="#00CEC9" font-size="9" font-weight="bold">86.5</text>
+
+                    <text x="30" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W1</text>
+                    <text x="60" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W2</text>
+                    <text x="90" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W3</text>
+                    <text x="120" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W4</text>
+                    <text x="150" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W5</text>
+                    <text x="180" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W6</text>
+                    <text x="210" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W7</text>
+                    <text x="240" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W8</text>
+                    <text x="270" y="195" fill="#6C6C8A" font-size="7" text-anchor="middle">W9</text>
+                    <text x="300" y="195" fill="#A29BFE" font-size="7" text-anchor="middle">W10</text>
+                </svg>
+                <div class="chart-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#6C5CE760"></div> T&auml;glich</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#00CEC9"></div> &#216; Woche</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#A29BFE"></div> Soll</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#E17055"></div> Ziel</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <div class="section-title">Foto-Tagebuch</div>
+                <div class="section-link">Foto hinzuf&uuml;gen +</div>
+            </div>
+            <div class="photo-grid">
+                <div class="photo-placeholder has-photo"><span class="icon">&#128247;</span><span class="label">Woche 1</span></div>
+                <div class="photo-placeholder has-photo"><span class="icon">&#128247;</span><span class="label">Woche 2</span></div>
+                <div class="photo-placeholder has-photo"><span class="icon">&#128247;</span><span class="label">Woche 3</span></div>
+                <div class="photo-placeholder has-photo"><span class="icon">&#128247;</span><span class="label">Woche 4</span></div>
+                <div class="photo-placeholder"><span class="icon">+</span><span class="label">Woche 5</span></div>
+                <div class="photo-placeholder"><span class="icon"></span><span class="label">Woche 6</span></div>
+            </div>
+        </div>
+
+        <!-- =================== PROFILE =================== -->
+        <div class="page" id="page-profile">
+            <div class="profile-header">
+                <div class="profile-avatar">M</div>
+                <div class="profile-name">Max Mustermann</div>
+                <div class="profile-since">Dabei seit 1. M&auml;rz 2026</div>
+                <div class="profile-stats-row">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">-3.5</div>
+                        <div class="profile-stat-label">kg verloren</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">28</div>
+                        <div class="profile-stat-label">Tage dabei</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">18</div>
+                        <div class="profile-stat-label">Trainings</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Ziel</div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#127919;</span>
+                        <div>
+                            <div class="settings-item-label">Zielgewicht</div>
+                            <div class="settings-item-desc">80.0 kg in 10 Wochen</div>
+                        </div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128207;</span>
+                        <div>
+                            <div class="settings-item-label">Startgewicht</div>
+                            <div class="settings-item-desc">90.0 kg am 01.03.2026</div>
+                        </div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128207;</span>
+                        <div>
+                            <div class="settings-item-label">Gr&ouml;&szlig;e</div>
+                            <div class="settings-item-desc">180 cm</div>
+                        </div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Datenschutz</div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128275;</span>
+                        <div>
+                            <div class="settings-item-label">Gewicht f&uuml;r Team sichtbar</div>
+                            <div class="settings-item-desc">Andere sehen dein aktuelles Gewicht</div>
+                        </div>
+                    </div>
+                    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128293;</span>
+                        <div>
+                            <div class="settings-item-label">Kalorien f&uuml;r Team sichtbar</div>
+                        </div>
+                    </div>
+                    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#127939;</span>
+                        <div>
+                            <div class="settings-item-label">Trainings f&uuml;r Team sichtbar</div>
+                        </div>
+                    </div>
+                    <div class="toggle" onclick="this.classList.toggle('active')"></div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Verbindungen</div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#FC4C02"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+                        </span>
+                        <div>
+                            <div class="settings-item-label">Strava</div>
+                            <div class="settings-item-desc" style="color:var(--success);">Verbunden &#10003;</div>
+                        </div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Erinnerungen</div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#9200;</span>
+                        <div>
+                            <div class="settings-item-label">T&auml;gliche Wiege-Erinnerung</div>
+                            <div class="settings-item-desc">Jeden Morgen um 07:00</div>
+                        </div>
+                    </div>
+                    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Konto</div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128274;</span>
+                        <div><div class="settings-item-label">PIN &auml;ndern</div></div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left">
+                        <span class="settings-item-icon">&#128682;</span>
+                        <div><div class="settings-item-label" style="color:var(--danger);">Abmelden</div></div>
+                    </div>
+                    <span style="color:var(--text-muted);font-size:14px;">&rsaquo;</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Detail Overlays -->
+    <div class="detail-overlay" id="detail-weight-detail">
+        <div class="detail-panel">
+            <button class="detail-back" onclick="closeDetail('weight-detail')">&larr; Zur&uuml;ck</button>
+            <div class="detail-title">Gewicht</div>
+            <div class="detail-subtitle">Dein aktuelles Gewicht im Detail</div>
+            <div style="text-align:center;margin:20px 0;">
+                <div class="detail-big-value">86.5</div>
+                <div class="detail-unit">kg</div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">&#220;bersicht</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Startgewicht</span>
+                    <span class="detail-row-value">90.0 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Aktuell</span>
+                    <span class="detail-row-value">86.5 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Zielgewicht</span>
+                    <span class="detail-row-value">80.0 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Verloren</span>
+                    <span class="detail-row-value" style="color:var(--success);">-3.5 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Noch zu verlieren</span>
+                    <span class="detail-row-value" style="color:var(--primary-light);">-6.5 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#216; pro Woche</span>
+                    <span class="detail-row-value">-0.88 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Ben&ouml;tigt/Woche (Soll)</span>
+                    <span class="detail-row-value" style="color:var(--warning);">-1.08 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Prognose Ziel erreicht</span>
+                    <span class="detail-row-value" style="color:var(--accent);">18. Mai 2026</span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Heute (niedrigster z&auml;hlt)</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">07:05 Uhr</span>
+                    <span class="detail-row-value">87.1 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">12:30 Uhr &#11088;</span>
+                    <span class="detail-row-value" style="color:var(--accent);">86.5 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">20:15 Uhr</span>
+                    <span class="detail-row-value">86.8 kg</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="detail-calories-detail">
+        <div class="detail-panel">
+            <button class="detail-back" onclick="closeDetail('calories-detail')">&larr; Zur&uuml;ck</button>
+            <div class="detail-title">Kalorien heute</div>
+            <div class="detail-subtitle">Dein Energieverbrauch im Detail</div>
+            <div style="text-align:center;margin:20px 0;">
+                <div class="detail-big-value">2,340</div>
+                <div class="detail-unit">kcal gesamt</div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Aufschl&uuml;sselung</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Grundumsatz (BMR)</span>
+                    <span class="detail-row-value">1,850 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Alltagsaktivit&auml;t</span>
+                    <span class="detail-row-value">150 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Training (Strava)</span>
+                    <span class="detail-row-value" style="color:var(--accent);">342 kcal</span>
+                </div>
+                <div class="detail-row" style="border-top:2px solid var(--border);padding-top:16px;">
+                    <span class="detail-row-label"><strong>Gesamt</strong></span>
+                    <span class="detail-row-value" style="color:var(--accent);"><strong>2,342 kcal</strong></span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Empfehlung</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Empf. Kalorienaufnahme</span>
+                    <span class="detail-row-value" style="color:var(--primary-light);">1,790 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Damit Defizit von</span>
+                    <span class="detail-row-value" style="color:var(--success);">550 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">= ca. Gewichtsverlust/Woche</span>
+                    <span class="detail-row-value">~0.5 kg</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="detail-training-detail">
+        <div class="detail-panel">
+            <button class="detail-back" onclick="closeDetail('training-detail')">&larr; Zur&uuml;ck</button>
+            <div class="detail-title">Trainings diese Woche</div>
+            <div class="detail-subtitle">Deine Aktivit&auml;ten der aktuellen Woche</div>
+            <div style="text-align:center;margin:20px 0;">
+                <div class="detail-big-value">4</div>
+                <div class="detail-unit">von 5 Einheiten (Soll)</div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Diese Woche</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#127939; Morgenlauf (Sa)</span>
+                    <span class="detail-row-value" style="color:var(--accent);">342 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#128692; Radtour (Fr)</span>
+                    <span class="detail-row-value" style="color:var(--accent);">520 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#127939; Intervall (Mi)</span>
+                    <span class="detail-row-value" style="color:var(--accent);">410 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#127947; Krafttraining (Mo)</span>
+                    <span class="detail-row-value" style="color:var(--accent);">280 kcal</span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Wochenziel</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Einheiten Soll</span>
+                    <span class="detail-row-value">5</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Noch ausstehend</span>
+                    <span class="detail-row-value" style="color:var(--warning);">1 Einheit</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Kalorien diese Woche</span>
+                    <span class="detail-row-value" style="color:var(--success);">1,552 kcal</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">&#216; pro Training</span>
+                    <span class="detail-row-value">388 kcal</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="detail-average-detail">
+        <div class="detail-panel">
+            <button class="detail-back" onclick="closeDetail('average-detail')">&larr; Zur&uuml;ck</button>
+            <div class="detail-title">&#216; Gewicht (7 Tage)</div>
+            <div class="detail-subtitle">Gl&auml;ttet t&auml;gliche Schwankungen</div>
+            <div style="text-align:center;margin:20px 0;">
+                <div class="detail-big-value">85.7</div>
+                <div class="detail-unit">kg (7-Tage-Schnitt)</div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Verlauf Wochendurchschnitt</div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Aktuelle Woche</span>
+                    <span class="detail-row-value" style="color:var(--success);">85.7 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Letzte Woche</span>
+                    <span class="detail-row-value">86.2 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Vorletzte Woche</span>
+                    <span class="detail-row-value">87.0 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Ver&auml;nderung (7 Tage)</span>
+                    <span class="detail-row-value" style="color:var(--success);">-0.5 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Soll-Verlust (7 Tage)</span>
+                    <span class="detail-row-value" style="color:var(--primary-light);">-1.0 kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">Status</span>
+                    <span class="detail-row-value" style="color:var(--warning);">Leicht hinter Plan</span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Warum Durchschnitt?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                    Dein Gewicht schwankt t&auml;glich um bis zu 1-2 kg durch Wasser, Nahrung und Verdauung. Der 7-Tage-Durchschnitt zeigt den echten Trend und verhindert Frustration durch nat&uuml;rliche Schwankungen.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar" id="tabBar">
+        <div class="tab-item active" onclick="showScreen('dashboard')">
+            <div class="tab-icon">&#127968;</div>
+            <div class="tab-label">Home</div>
+        </div>
+        <div class="tab-item" onclick="showScreen('charts')">
+            <div class="tab-icon">&#128200;</div>
+            <div class="tab-label">Statistik</div>
+        </div>
+        <div class="tab-item tab-item-center" onclick="showScreen('weight')">
+            <div class="tab-icon">&#9878;&#65039;</div>
+            <div class="tab-label" style="margin-top:6px;">Wiegen</div>
+        </div>
+        <div class="tab-item" onclick="showScreen('team')">
+            <div class="tab-icon">&#128101;</div>
+            <div class="tab-label">Team</div>
+        </div>
+        <div class="tab-item" onclick="showScreen('profile')">
+            <div class="tab-icon">&#128100;</div>
+            <div class="tab-label">Profil</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showScreen(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+
+    document.querySelectorAll('.screen-nav button').forEach((btn, i) => {
+        btn.classList.remove('active');
+        const screens = ['login','dashboard','weight','team','activity','charts','profile'];
+        if (screens[i] === name) btn.classList.add('active');
+    });
+
+    const tabMap = {dashboard:0,charts:1,weight:2,team:3,profile:4};
+    document.querySelectorAll('.tab-item').forEach((tab,i) => {
+        tab.classList.remove('active');
+        if (tabMap[name] === i) tab.classList.add('active');
+    });
+
+    document.getElementById('tabBar').style.display = name === 'login' ? 'none' : 'flex';
+    document.getElementById('mainScreen').scrollTop = 0;
+}
+
+function showDetail(id) {
+    document.getElementById('detail-' + id).classList.add('active');
+}
+
+function closeDetail(id) {
+    document.getElementById('detail-' + id).classList.remove('active');
+}
+
+function initWeightPicker() {
+    const scroll = document.getElementById('weightScroll');
+    if (!scroll) return;
+    const currentWeight = 86.5;
+    let html = '<div style="height:75px"></div>';
+    for (let w = 120; w >= 40; w -= 0.1) {
+        const val = w.toFixed(1);
+        const isSelected = val === currentWeight.toFixed(1);
+        html += '<div class="weight-option ' + (isSelected ? 'selected' : '') + '" data-weight="' + val + '">' + val + '</div>';
+    }
+    html += '<div style="height:75px"></div>';
+    scroll.innerHTML = html;
+
+    setTimeout(() => {
+        const selected = scroll.querySelector('.selected');
+        if (selected) scroll.scrollTop = selected.offsetTop - scroll.offsetHeight/2 + 25;
+    }, 100);
+
+    scroll.addEventListener('scroll', () => {
+        const center = scroll.scrollTop + scroll.offsetHeight/2;
+        let closest = null, minDist = Infinity;
+        scroll.querySelectorAll('.weight-option').forEach(opt => {
+            const dist = Math.abs(opt.offsetTop + 25 - center);
+            if (dist < minDist) { minDist = dist; closest = opt; }
+        });
+        if (closest) {
+            scroll.querySelectorAll('.weight-option').forEach(o => o.classList.remove('selected'));
+            closest.classList.add('selected');
+            document.getElementById('weightDisplay').textContent = closest.dataset.weight;
+        }
+    });
+}
+
+document.getElementById('tabBar').style.display = 'none';
+initWeightPicker();
+</script>
+</body>
+</html>
