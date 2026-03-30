@@ -30,13 +30,13 @@ export default function ChartsPage() {
   const [weights, setWeights] = useState<WeightEntry[]>([]);
   const [photos] = useState<Photo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadWeek, setUploadWeek] = useState<number | null>(null);
+  const [_uploadWeek, setUploadWeek] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       const g = await getActiveGoal(user.uid);
-      if (g) setGoal(g as Goal);
+      if (g) setGoal(g as unknown as Goal);
       const w = await getWeights(user.uid, 90);
       setWeights((w || []) as unknown as WeightEntry[]);
     };

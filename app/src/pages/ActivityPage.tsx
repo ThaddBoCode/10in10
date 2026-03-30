@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
 import { getActivities, addActivity } from "../lib/firestore";
+import { isStravaConnected, syncStravaActivities, mapStravaType, stravaCalories } from "../lib/strava";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../lib/firebase";
 import {
   Footprints, Bike, Dumbbell, Waves, Mountain, Heart,
   Clock, MapPin, Timer, HeartPulse, Plus, X,
-  Check,
+  Check, RefreshCw,
 } from "lucide-react";
 
 type Activity = {
@@ -13,6 +16,7 @@ type Activity = {
   name: string;
   date: string;
   duration: number;
+  stravaId?: string;
   distance: number | null;
   calories: number;
   avgHeartRate: number | null;
@@ -74,13 +78,48 @@ export default function ActivityPage() {
   const [formCalories, setFormCalories] = useState("");
   const [formDistance, setFormDistance] = useState("");
 
+  const [stravaConnected, setStravaConnected] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
   const loadData = async () => {
     if (!user) return;
     const acts = await getActivities(user.uid, 30);
     setActivities((acts || []) as Activity[]);
+    const connected = await isStravaConnected(user.uid);
+    setStravaConnected(connected);
   };
 
   useEffect(() => { loadData(); }, [user]);
+
+  const handleStravaSync = async () => {
+    if (!user) return;
+    setSyncing(true);
+    try {
+      const stravaActs = await syncStravaActivities(user.uid);
+      for (const sa of stravaActs) {
+        // Check if already imported (by stravaId)
+        const existing = activities.find((a: Activity) => a.stravaId === String(sa.id));
+        if (existing) continue;
+
+        await addDoc(collection(db, "users", user.uid, "activities"), {
+          stravaId: String(sa.id),
+          type: mapStravaType(sa.type),
+          name: sa.name,
+          date: sa.start_date,
+          duration: sa.moving_time,
+          distance: sa.distance,
+          calories: stravaCalories(sa),
+          avgHeartRate: sa.average_heartrate ? Math.round(sa.average_heartrate) : null,
+          source: "strava",
+          createdAt: serverTimestamp(),
+        });
+      }
+      await loadData();
+    } catch (e) {
+      console.error("Strava sync error:", e);
+    }
+    setSyncing(false);
+  };
 
   const handleAddActivity = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,24 +157,30 @@ export default function ActivityPage() {
         <h1 className="font-heading text-[26px]" style={{ color: "var(--text)" }}>Deine Bewegung</h1>
       </div>
 
-      {/* Strava Status (not connected in Firebase version) */}
-      <div className="mx-5 mt-4 flex items-center gap-3 rounded-[var(--card-radius)] p-4"
+      {/* Strava Status */}
+      <div className="mx-5 mt-4 flex items-center gap-3 p-4"
            style={{
-             background: "var(--bg-card)",
-             border: "1px solid var(--border)",
+             background: stravaConnected ? "linear-gradient(135deg, #FC4C02, #FF7043)" : "var(--bg-card)",
+             border: stravaConnected ? "none" : "1px solid var(--border)",
              borderRadius: "var(--card-radius)",
            }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--text-muted)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill={stravaConnected ? "white" : "var(--text-muted)"}>
           <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
         </svg>
         <div className="flex-1">
-          <p className="font-heading text-sm" style={{ color: "var(--text)" }}>
-            Strava nicht verbunden
+          <p className="font-heading text-sm" style={{ color: stravaConnected ? "white" : "var(--text)" }}>
+            {stravaConnected ? "Strava verbunden" : "Strava nicht verbunden"}
           </p>
-          <p className="font-body text-xs" style={{ color: "var(--text-secondary)" }}>
-            Verbinde im Profil
+          <p className="font-body text-xs" style={{ color: stravaConnected ? "rgba(255,255,255,0.8)" : "var(--text-secondary)" }}>
+            {stravaConnected ? "Klicke Sync um Aktivitaeten zu laden" : "Verbinde im Profil"}
           </p>
         </div>
+        {stravaConnected && (
+          <button onClick={handleStravaSync} disabled={syncing}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
+            <RefreshCw size={16} className={`text-white ${syncing ? "animate-spin" : ""}`} />
+          </button>
+        )}
       </div>
 
       {/* Weekly Stats */}

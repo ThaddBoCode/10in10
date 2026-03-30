@@ -1,0 +1,9 @@
+name = "strava-oauth"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+STRAVA_CLIENT_ID = "218144"
+APP_URL = "https://thaddbocode.github.io/10in10"
+
+# STRAVA_CLIENT_SECRET is set via: npx wrangler secret put STRAVA_CLIENT_SECRET
