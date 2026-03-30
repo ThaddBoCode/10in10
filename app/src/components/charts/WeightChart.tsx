@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -61,7 +59,6 @@ export function WeightChart({
     const isPast = date <= today;
 
     const weekNum = Math.floor(d / 7) + 1;
-    const dayInWeek = (d % 7) + 1;
     const label = d % 7 === 0 ? `W${weekNum}` : "";
 
     const planned = Math.round((startWeight - lossPerDay * d) * 10) / 10;

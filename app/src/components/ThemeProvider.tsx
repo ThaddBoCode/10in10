@@ -1,56 +1,24 @@
-"use client";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-import { createContext, useContext, useEffect, useState } from "react";
+type ThemeCtx = { theme: string; setTheme: (t: string) => void };
+const ThemeContext = createContext<ThemeCtx>({ theme: "glass", setTheme: () => {} });
+export function useTheme() { return useContext(ThemeContext); }
 
-type ThemeContextType = {
-  theme: string;
-  fontSet: string;
-  setTheme: (theme: string) => void;
-  setFontSet: (fontSet: string) => void;
-};
-
-const ThemeContext = createContext<ThemeContextType>({
-  theme: "glass",
-  fontSet: "prometo",
-  setTheme: () => {},
-  setFontSet: () => {},
-});
-
-export function useTheme() {
-  return useContext(ThemeContext);
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState("glass");
-  const [fontSet, setFontSetState] = useState("prometo");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("10in10-theme") || "glass";
-    const savedFont = localStorage.getItem("10in10-font") || "prometo";
-    setThemeState(savedTheme);
-    setFontSetState(savedFont);
-    setMounted(true);
+    const saved = localStorage.getItem("10in10-theme") || "glass";
+    setThemeState(saved);
+    document.documentElement.setAttribute("data-theme", saved);
+    document.documentElement.setAttribute("data-font", "prometo");
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("10in10-theme", theme);
-  }, [theme, mounted]);
+  const setTheme = (t: string) => {
+    setThemeState(t);
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem("10in10-theme", t);
+  };
 
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.setAttribute("data-font", fontSet);
-    localStorage.setItem("10in10-font", fontSet);
-  }, [fontSet, mounted]);
-
-  const setTheme = (t: string) => setThemeState(t);
-  const setFontSet = (f: string) => setFontSetState(f);
-
-  return (
-    <ThemeContext.Provider value={{ theme, fontSet, setTheme, setFontSet }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
