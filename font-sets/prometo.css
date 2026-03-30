@@ -1,0 +1,30 @@
+@font-face {
+  font-family: 'ZF Prometo';
+  src: url('/fonts/ZFPrometo_W_Lt.woff2') format('woff2'),
+       url('/fonts/ZFPrometo_W_Lt.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ZF Prometo';
+  src: url('/fonts/ZFPrometo_W_Md.woff2') format('woff2'),
+       url('/fonts/ZFPrometo_W_Md.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+[data-font="prometo"] {
+  --font-heading: 'ZF Prometo', system-ui, sans-serif;
+  --font-heading-weight: 500;
+  --font-heading-spacing: 0.5px;
+
+  --font-body: 'ZF Prometo', system-ui, sans-serif;
+  --font-body-weight: 300;
+
+  --font-numbers: 'ZF Prometo', system-ui, sans-serif;
+  --font-numbers-weight: 500;
+  --font-numbers-spacing: 0px;
+}

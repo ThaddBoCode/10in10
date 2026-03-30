@@ -1,0 +1,9 @@
+# Mockup files (development only)
+# mockup/
+
+# Font source archive
+Font/Font/
+Font/*.zip
+
+# Claude local config
+.claude/

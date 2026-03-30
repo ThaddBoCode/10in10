@@ -1,0 +1,28 @@
+[data-theme="glass"] {
+  --primary: #818CF8;
+  --primary-light: #A5B4FC;
+  --primary-dark: #6366F1;
+  --accent: #34D399;
+  --accent-light: #6EE7B7;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #FB7185;
+  --bg: #0C0C1D;
+  --bg-image: linear-gradient(135deg, #0C0C1D 0%, #1a0a2e 30%, #0C0C1D 50%, #0a1628 70%, #0C0C1D 100%);
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-card-hover: rgba(255, 255, 255, 0.1);
+  --bg-input: rgba(255, 255, 255, 0.04);
+  --text: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.35);
+  --border: rgba(255, 255, 255, 0.08);
+  --card-radius: 20px;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --card-blur: blur(20px);
+  --card-border-width: 1px;
+  --gradient-primary: linear-gradient(135deg, #818CF8, #34D399);
+  --gradient-accent: linear-gradient(135deg, #34D399, #818CF8);
+  --glow-primary: 0 0 20px rgba(129, 140, 248, 0.3);
+  --glow-accent: 0 0 20px rgba(52, 211, 153, 0.3);
+  --tab-bg: rgba(12, 12, 29, 0.88);
+}

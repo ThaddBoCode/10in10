@@ -1,0 +1,22 @@
+{
+  "name": "10in10 - Gemeinsam abnehmen",
+  "short_name": "10in10",
+  "description": "Tracke dein Gewicht, Training und Kalorien.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0C0C1D",
+  "theme_color": "#818CF8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
