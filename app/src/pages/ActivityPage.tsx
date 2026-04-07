@@ -191,7 +191,7 @@ export default function ActivityPage() {
             <Footprints size={17} style={{ color: "var(--accent)" }} />
           </div>
           <p className="font-numbers text-2xl" style={{ color: "var(--text)" }}>
-            {weeklyCalories > 0 ? weeklyCalories.toLocaleString() : "\u2014"}
+            {weeklyCalories > 0 ? weeklyCalories.toLocaleString() : "—"}
           </p>
           <p className="font-body mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>kcal diese Woche</p>
         </div>
@@ -201,7 +201,7 @@ export default function ActivityPage() {
             <Timer size={17} style={{ color: "var(--primary-light)" }} />
           </div>
           <p className="font-numbers text-2xl" style={{ color: "var(--text)" }}>
-            {weeklyDuration > 0 ? formatDuration(weeklyDuration) : "\u2014"}
+            {weeklyDuration > 0 ? formatDuration(weeklyDuration) : "—"}
           </p>
           <p className="font-body mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>Trainingszeit</p>
         </div>
@@ -323,7 +323,7 @@ export default function ActivityPage() {
                 <div>
                   <label className="font-body mb-1 block text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>km (opt.)</label>
                   <input type="number" step="0.1" value={formDistance} onChange={(e) => setFormDistance(e.target.value)}
-                    placeholder="\u2014"
+                    placeholder="—"
                     className="font-numbers w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                     style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text)" }} />
                 </div>

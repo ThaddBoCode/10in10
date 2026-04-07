@@ -99,7 +99,7 @@ export default function ChartsPage() {
           <div className="mt-3 flex justify-center gap-4">
             {[
               { color: "var(--primary)", label: "Taeglich" },
-              { color: "var(--accent)", label: "\u00D8 7 Tage" },
+              { color: "var(--accent)", label: "Ø 7 Tage" },
               { color: "var(--primary-light)", label: "Soll", opacity: 0.4 },
               { color: "var(--danger)", label: "Ziel", opacity: 0.8 },
             ].map((l) => (

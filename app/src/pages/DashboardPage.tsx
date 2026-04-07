@@ -1,32 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
-import {
-  Target, Compass, CheckCircle2, Lightbulb, Flame,
-  Scale, Activity, BarChart3, TrendingDown, Zap,
-  ArrowUp, ChevronRight, ArrowRight, Footprints,
-} from "lucide-react";
+import { ArrowRight, Flame } from "lucide-react";
 import { WeightChart } from "../components/charts/WeightChart";
 import { DetailOverlay } from "../components/dashboard/DetailOverlay";
 import { calculateBMR, getActivityMultiplier } from "../lib/calories";
 import { projectCompletionDate } from "../lib/progress";
-import {
-  getActiveGoal, createGoal, getWeights, getStreak,
-} from "../lib/firestore";
+import { getActiveGoal, createGoal, getWeights, getStreak, getActivities } from "../lib/firestore";
 
-type Goal = {
-  id: string;
-  startWeight: number;
-  targetWeight: number;
-  startDate: string;
-  endDate: string;
-  weeks: number;
-};
-
-type WeightEntry = {
-  date: string;
-  weight: number;
-};
+type Goal = { id: string; startWeight: number; targetWeight: number; startDate: string; endDate: string; weeks: number };
+type WeightEntry = { date: string; weight: number };
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -36,8 +19,10 @@ export default function DashboardPage() {
   const [activeDetail, setActiveDetail] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
   const [weekDays, setWeekDays] = useState<{ label: string; logged: boolean; isToday: boolean }[]>([]);
+  const [todayTrainings, setTodayTrainings] = useState(0);
+  const [weekTrainings, setWeekTrainings] = useState(0);
+  const [weekCalories, setWeekCalories] = useState(0);
 
-  // Setup form
   const [startWeight, setStartWeight] = useState("90");
   const [targetWeight, setTargetWeight] = useState("80");
   const [weeks, setWeeks] = useState("10");
@@ -46,15 +31,19 @@ export default function DashboardPage() {
     if (!user) return;
     const load = async () => {
       const g = await getActiveGoal(user.uid);
-      if (g) setGoal(g as Goal);
-      else setShowSetup(true);
-
+      if (g) setGoal(g as Goal); else setShowSetup(true);
       const w = await getWeights(user.uid, 90);
       setWeights((w || []) as unknown as WeightEntry[]);
-
       const s = await getStreak(user.uid);
       setStreak(s.streak || 0);
       setWeekDays(s.weekDays || []);
+
+      // Activities
+      const acts = (await getActivities(user.uid, 7)) as unknown as { date: string; calories: number }[];
+      const today = new Date().toISOString().split("T")[0];
+      setTodayTrainings(acts.filter(a => a.date?.startsWith(today)).length);
+      setWeekTrainings(acts.length);
+      setWeekCalories(acts.reduce((s, a) => s + (a.calories || 0), 0));
     };
     load();
   }, [user]);
@@ -62,89 +51,43 @@ export default function DashboardPage() {
   const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    await createGoal(
-      user.uid,
-      parseFloat(startWeight),
-      parseFloat(targetWeight),
-      parseInt(weeks),
-    );
+    await createGoal(user.uid, parseFloat(startWeight), parseFloat(targetWeight), parseInt(weeks));
     const g = await getActiveGoal(user.uid);
-    if (g) {
-      setGoal(g as Goal);
-      setShowSetup(false);
-    }
+    if (g) { setGoal(g as Goal); setShowSetup(false); }
   };
 
-  // Calculate progress
   const currentWeight = weights.length > 0 ? weights[0].weight : goal?.startWeight || 0;
   const totalLoss = goal ? goal.startWeight - currentWeight : 0;
   const targetLoss = goal ? goal.startWeight - goal.targetWeight : 10;
-  const progressPct = targetLoss > 0 ? Math.min((totalLoss / targetLoss) * 100, 100) : 0;
-
-  const currentWeek = goal
-    ? Math.min(Math.floor((Date.now() - new Date(goal.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1, goal.weeks)
-    : 1;
-  const plannedLoss = goal ? (targetLoss / goal.weeks) * currentWeek : 0;
-  const diff = plannedLoss - totalLoss;
-
-  const status = diff <= 0 ? "ahead" : diff < 0.5 ? "on-track" : diff < 1.5 ? "slightly-behind" : "behind";
-  const statusLabel = { ahead: "Voraus!", "on-track": "Auf Kurs", "slightly-behind": "Leicht hinter Plan", behind: "Hinter Plan" }[status];
-  const statusColor = { ahead: "var(--accent)", "on-track": "var(--success)", "slightly-behind": "var(--warning)", behind: "var(--danger)" }[status];
-
+  const currentWeek = goal ? Math.min(Math.floor((Date.now() - new Date(goal.startDate).getTime()) / (7 * 86400000)) + 1, goal.weeks) : 1;
   const weeklyTarget = goal ? targetLoss / goal.weeks : 1;
+  const weeklyLossSoFar = weights.length >= 2 ? weights[weights.length > 7 ? weights.length - 7 : 0].weight - currentWeight : 0;
+  const weekPct = weeklyTarget > 0 ? Math.min((weeklyLossSoFar / weeklyTarget) * 100, 100) : 0;
   const deficitPerDay = Math.round((weeklyTarget * 7700) / 7);
   const remaining = goal ? currentWeight - goal.targetWeight : 0;
   const weeksLeft = goal ? goal.weeks - currentWeek : 0;
   const weeklyNeeded = weeksLeft > 0 ? remaining / weeksLeft : remaining;
-
-  // BMR & Calories
   const bmr = currentWeight > 0 ? calculateBMR(currentWeight) : 0;
-  const actMult = getActivityMultiplier("light");
-  const dailyActivity = Math.round(bmr * (actMult - 1));
-  const totalCal = bmr + dailyActivity;
-
-  // 7-day average
-  const avg7 = weights.length > 0
-    ? (weights.slice(0, 7).reduce((s, w) => s + w.weight, 0) / Math.min(weights.length, 7)).toFixed(1)
-    : null;
-
-  // Projected date
+  const totalCal = bmr + Math.round(bmr * (getActivityMultiplier("light") - 1));
+  const weightChange = weights.length >= 2 ? weights[1].weight - weights[0].weight : 0;
   const avgWeeklyLoss = currentWeek > 0 ? totalLoss / currentWeek : 0;
-  const projectedDate = goal && avgWeeklyLoss > 0
-    ? projectCompletionDate(currentWeight, goal.targetWeight, avgWeeklyLoss)
-    : null;
+  const projectedDate = goal && avgWeeklyLoss > 0 ? projectCompletionDate(currentWeight, goal.targetWeight, avgWeeklyLoss) : null;
+
+  // Week training goal (hardcoded 5 for now, later from profile)
+  const weekTrainingGoal = 5;
+  const weekCalorieGoal = 3500;
 
   if (showSetup) {
     return (
       <div className="px-5 pt-6">
         <h1 className="font-heading text-2xl" style={{ color: "var(--text)" }}>Willkommen, {user?.displayName}!</h1>
-        <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-          Lass uns dein Ziel festlegen.
-        </p>
+        <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>Lass uns dein Ziel festlegen.</p>
         <form onSubmit={handleCreateGoal} className="mt-8 space-y-4">
-          <div>
-            <label className="font-body mb-1 block text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>Startgewicht (kg)</label>
-            <input type="number" step="0.1" value={startWeight} onChange={e => setStartWeight(e.target.value)}
-              className="font-numbers w-full rounded-[14px] px-5 py-4 text-lg outline-none"
-              style={{ background: "var(--bg-card)", border: "2px solid var(--border)", color: "var(--text)" }} />
-          </div>
-          <div>
-            <label className="font-body mb-1 block text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>Zielgewicht (kg)</label>
-            <input type="number" step="0.1" value={targetWeight} onChange={e => setTargetWeight(e.target.value)}
-              className="font-numbers w-full rounded-[14px] px-5 py-4 text-lg outline-none"
-              style={{ background: "var(--bg-card)", border: "2px solid var(--border)", color: "var(--text)" }} />
-          </div>
-          <div>
-            <label className="font-body mb-1 block text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>Zeitraum (Wochen)</label>
-            <input type="number" value={weeks} onChange={e => setWeeks(e.target.value)}
-              className="font-numbers w-full rounded-[14px] px-5 py-4 text-lg outline-none"
-              style={{ background: "var(--bg-card)", border: "2px solid var(--border)", color: "var(--text)" }} />
-          </div>
-          <button type="submit"
-            className="font-heading w-full rounded-[14px] py-4 text-base font-bold text-white"
-            style={{ background: "var(--gradient-primary)", boxShadow: "var(--glow-primary)" }}>
-            Ziel starten
-          </button>
+          {[["Startgewicht (kg)", startWeight, setStartWeight], ["Zielgewicht (kg)", targetWeight, setTargetWeight], ["Zeitraum (Wochen)", weeks, setWeeks]].map(([l, v, s]: any) => (
+            <div key={l}><label className="font-body mb-1 block text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>{l}</label>
+            <input type="number" step="0.1" value={v} onChange={e => s(e.target.value)} className="font-numbers w-full rounded-[14px] px-5 py-4 text-lg outline-none" style={{ background: "var(--bg-card)", border: "2px solid var(--border)", color: "var(--text)" }} /></div>
+          ))}
+          <button type="submit" className="font-heading w-full rounded-[14px] py-4 text-base font-bold text-white" style={{ background: "var(--gradient-primary)", boxShadow: "var(--glow-primary)" }}>Ziel starten</button>
         </form>
       </div>
     );
@@ -152,277 +95,159 @@ export default function DashboardPage() {
 
   return (
     <div className="pt-4">
-      {/* Header */}
+      {/* Header with date */}
       <div className="px-5">
-        <p className="font-body text-sm" style={{ color: "var(--text-secondary)" }}>Guten Tag,</p>
-        <h1 className="font-heading text-[26px]" style={{ color: "var(--text)" }}>{user?.displayName}</h1>
+        <p className="font-body text-sm" style={{ color: "var(--text-secondary)" }}>
+          {new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}
+        </p>
+        <h1 className="font-heading text-[24px]" style={{ color: "var(--text)" }}>Hallo {user?.displayName}</h1>
       </div>
 
-      {/* Goal Banner */}
-      <div className="gradient-banner relative mx-5 mt-4 overflow-hidden p-5">
-        <div className="absolute -right-8 -top-8 h-[120px] w-[120px] rounded-full bg-white/[0.08]" />
-        <div className="relative">
-          <p className="font-body flex items-center gap-1.5 text-[11px] uppercase tracking-[2px] text-white/80">
-            <Target size={14} /> Dein Ziel
-          </p>
-          <p className="font-numbers mt-1 text-[40px] leading-tight text-white">
-            -{totalLoss.toFixed(1)} kg
-          </p>
-          <p className="font-body text-[13px] text-white/75">
-            von {targetLoss.toFixed(0)} kg in {goal?.weeks} Wochen &bull; Woche {currentWeek}/{goal?.weeks}
-          </p>
-          <div className="mt-3.5 h-[5px] overflow-hidden rounded-full bg-white/20">
-            <div className="h-full rounded-full bg-white/85 transition-all duration-1000" style={{ width: `${progressPct}%` }} />
+      {/* === HEUTE === */}
+      {/* Hero: Gewicht + 2 Ringe */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "14px 20px" }}>
+        <div>
+          <div className="font-numbers" style={{ fontSize: 48, fontWeight: 500, color: "var(--primary)", lineHeight: 1 }}>
+            {currentWeight.toFixed(1)}
+          </div>
+          <div className="font-body" style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+            kg {weightChange !== 0 && <span>· {weightChange < 0 ? "↓" : "↑"}{Math.abs(weightChange).toFixed(1)} seit gestern</span>}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
+          {/* Ring: Verbrauch */}
+          <div style={{ position: "relative", width: 72, height: 72 }}>
+            <svg viewBox="0 0 72 72" style={{ width: "100%", height: "100%" }}>
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--border)" strokeWidth="4" />
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--primary)" strokeWidth="4"
+                strokeDasharray="188" strokeDashoffset={188 - (188 * 0.4)} strokeLinecap="round"
+                transform="rotate(-90 36 36)" />
+            </svg>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
+              <div className="font-numbers" style={{ fontSize: 12, fontWeight: 500, color: "var(--primary)" }}>{totalCal.toLocaleString()}</div>
+              <div style={{ fontSize: 6, color: "var(--text-muted)" }}>Verbrauch</div>
+            </div>
+          </div>
+
+          {/* Ring: Defizit */}
+          <div style={{ position: "relative", width: 72, height: 72 }}>
+            <svg viewBox="0 0 72 72" style={{ width: "100%", height: "100%" }}>
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--border)" strokeWidth="4" />
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--primary-light)" strokeWidth="4"
+                strokeDasharray="188" strokeDashoffset={188 - (188 * 0.75)} strokeLinecap="round"
+                transform="rotate(-90 36 36)" />
+            </svg>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
+              <div className="font-numbers" style={{ fontSize: 12, fontWeight: 500, color: "var(--primary-light)" }}>-{deficitPerDay}</div>
+              <div style={{ fontSize: 6, color: "var(--text-muted)" }}>Defizit</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Kurs Tracker */}
-      <div className="card mx-5 mt-4 p-5">
-        <div className="flex items-center justify-between mb-3.5">
-          <h2 className="font-heading flex items-center gap-2 text-[15px]" style={{ color: "var(--text)" }}>
-            <Compass size={18} style={{ color: "var(--primary-light)" }} />
-            Auf Kurs?
-          </h2>
-          <span className="font-body flex items-center gap-1 rounded-lg px-3 py-1 text-[11px] font-bold"
-                style={{ background: `color-mix(in srgb, ${statusColor} 15%, transparent)`, color: statusColor }}>
-            <CheckCircle2 size={13} /> {statusLabel}
-          </span>
+      {/* Heute Zeile: Verbrannt / Gegessen / Trainings */}
+      <div style={{ display: "flex", gap: 1, margin: "0 20px", borderRadius: 14, overflow: "hidden" }}>
+        <div style={{ flex: 1, padding: 10, background: "color-mix(in srgb, var(--primary) 6%, transparent)", textAlign: "center" }}>
+          <div className="font-body" style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "uppercase" }}>Verbrannt</div>
+          <div className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--primary)", marginTop: 2 }}>{totalCal.toLocaleString()}</div>
         </div>
-
-        <div className="mb-3.5 grid grid-cols-3 gap-3">
-          <div className="text-center">
-            <p className="font-body text-[9px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Soll (W{currentWeek})</p>
-            <p className="font-numbers mt-1 text-xl" style={{ color: "var(--text)" }}>-{plannedLoss.toFixed(1)}</p>
-          </div>
-          <div className="text-center">
-            <p className="font-body text-[9px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Ist</p>
-            <p className="font-numbers mt-1 text-xl" style={{ color: "var(--success)" }}>-{totalLoss.toFixed(1)}</p>
-          </div>
-          <div className="text-center">
-            <p className="font-body text-[9px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Diff</p>
-            <p className="font-numbers mt-1 text-xl" style={{ color: diff > 0 ? "var(--warning)" : "var(--accent)" }}>
-              {diff > 0 ? "+" : ""}{diff.toFixed(1)}
-            </p>
-          </div>
+        <div style={{ flex: 1, padding: 10, background: "color-mix(in srgb, var(--danger) 6%, transparent)", textAlign: "center" }}>
+          <div className="font-body" style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "uppercase" }}>Gegessen</div>
+          <div className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--danger)", marginTop: 2 }}>—</div>
         </div>
+        <div style={{ flex: 1, padding: 10, background: "color-mix(in srgb, var(--primary) 6%, transparent)", textAlign: "center" }}>
+          <div className="font-body" style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "uppercase" }}>Trainings</div>
+          <div className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--primary)", marginTop: 2 }}>{todayTrainings}</div>
+        </div>
+      </div>
 
-        <div className="rounded-[14px] p-3.5" style={{ background: "color-mix(in srgb, var(--primary) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)" }}>
-          <p className="font-heading mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider" style={{ color: "var(--primary-light)" }}>
-            <Lightbulb size={13} /> Wochenplan
-          </p>
-          <div className="space-y-1">
-            {[
-              ["Wochenziel", `-${weeklyTarget.toFixed(1)} kg`, "var(--primary-light)"],
-              ["Noch diese Woche", `-${Math.max(0, weeklyTarget - (totalLoss - (weeklyTarget * (currentWeek - 1)))).toFixed(1)} kg`, "var(--warning)"],
-              ["Empf. Defizit/Tag", `~${deficitPerDay} kcal`, "var(--accent)"],
-            ].map(([label, value, color]) => (
-              <div key={label} className="flex justify-between py-1">
-                <span className="font-body text-[13px]" style={{ color: "var(--text-secondary)" }}>{label}</span>
-                <span className="font-numbers text-sm font-bold" style={{ color: color as string }}>{value}</span>
-              </div>
-            ))}
-          </div>
+      {/* === DIESE WOCHE === */}
+      <div className="font-body" style={{ margin: "14px 20px 0", fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5 }}>
+        Diese Woche · W{currentWeek}/{goal?.weeks}
+      </div>
+
+      {/* Gewicht */}
+      <div className="card" style={{ margin: "8px 20px", padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="font-body" style={{ fontSize: 12, fontWeight: 500 }}>Gewicht</span>
+          <span className="font-numbers" style={{ fontSize: 11, color: "var(--primary-light)" }}>-{weeklyLossSoFar.toFixed(1)} von -{weeklyTarget.toFixed(1)} kg</span>
+        </div>
+        <div style={{ height: 8, borderRadius: 4, background: "color-mix(in srgb, var(--primary) 8%, transparent)", overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${Math.max(0, weekPct)}%`, borderRadius: 4, background: "var(--primary)" }} />
+        </div>
+      </div>
+
+      {/* Training */}
+      <div className="card" style={{ margin: "6px 20px", padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="font-body" style={{ fontSize: 12, fontWeight: 500 }}>Training</span>
+          <span className="font-numbers" style={{ fontSize: 11, color: "var(--primary-light)" }}>{weekTrainings} von {weekTrainingGoal}</span>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {Array.from({ length: weekTrainingGoal }, (_, i) => (
+            <div key={i} style={{ flex: 1, height: 8, borderRadius: 4, background: i < weekTrainings ? "var(--primary)" : "color-mix(in srgb, var(--primary) 10%, transparent)" }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Kalorien */}
+      <div className="card" style={{ margin: "6px 20px", padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="font-body" style={{ fontSize: 12, fontWeight: 500 }}>Kalorien (Training)</span>
+          <span className="font-numbers" style={{ fontSize: 11, color: "var(--primary-light)" }}>{weekCalories.toLocaleString()} / {weekCalorieGoal.toLocaleString()}</span>
+        </div>
+        <div style={{ height: 8, borderRadius: 4, background: "color-mix(in srgb, var(--primary) 8%, transparent)", overflow: "hidden" }}>
+          <div style={{ height: "100%", width: `${Math.min((weekCalories / weekCalorieGoal) * 100, 100)}%`, borderRadius: 4, background: "var(--primary)" }} />
         </div>
       </div>
 
       {/* Streak */}
-      <div className="mx-5 mt-3 flex items-center gap-3 rounded-[var(--card-radius)] p-3.5"
-           style={{ background: "color-mix(in srgb, var(--warning) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--warning) 12%, transparent)", borderRadius: "var(--card-radius)" }}>
-        <div className="flex h-10 w-10 items-center justify-center rounded-[10px]"
-             style={{ background: "linear-gradient(135deg, var(--danger), var(--warning))" }}>
-          <Flame size={20} className="text-white" />
-        </div>
-        <div>
-          <p className="font-numbers text-2xl" style={{ color: "var(--text)" }}>{streak}</p>
-          <p className="font-body text-[10px]" style={{ color: "var(--text-secondary)" }}>Tage in Folge</p>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "10px 20px", padding: "8px 12px", borderRadius: 12, background: "color-mix(in srgb, var(--primary) 4%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 8%, transparent)" }}>
+        <Flame size={16} style={{ color: "var(--primary)" }} />
+        <span className="font-numbers" style={{ fontWeight: 500, color: "var(--primary)" }}>{streak}</span>
+        <span className="font-body" style={{ fontSize: 10, color: "var(--text-muted)" }}>Tage gewogen</span>
         {weekDays.length > 0 && (
-          <div className="ml-auto flex gap-1">
+          <div style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
             {weekDays.map((d) => (
-              <div key={d.label}
-                className="flex h-5 w-5 items-center justify-center rounded text-[8px] font-semibold"
-                style={{
-                  background: d.logged ? "var(--success)" : d.isToday ? "transparent" : "var(--border)",
-                  color: d.logged ? "white" : "var(--text-muted)",
-                  border: d.isToday && !d.logged ? "2px solid var(--primary)" : "none",
-                  fontFamily: "var(--font-body)",
-                }}>
-                {d.label[0]}
-              </div>
+              <div key={d.label} style={{
+                width: 16, height: 16, borderRadius: 3, fontSize: 7, fontWeight: 500,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: d.logged ? "var(--primary)" : d.isToday ? "transparent" : "var(--border)",
+                color: d.logged ? "white" : "var(--text-muted)",
+                border: d.isToday && !d.logged ? "1.5px solid var(--primary)" : "none",
+              }}>{d.label[0]}</div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Stat Cards */}
-      <div className="mx-5 mt-3 grid grid-cols-2 gap-3">
-        {[
-          { id: "weight", icon: Scale, color: "var(--primary-light)", label: "Gewicht (kg)", value: currentWeight.toFixed(1), change: weights.length >= 2 ? (weights[1].weight - weights[0].weight).toFixed(1) : null, changeIcon: TrendingDown },
-          { id: "calories", icon: Flame, color: "var(--accent)", label: "Kalorien", value: bmr > 0 ? bmr.toLocaleString() : "\u2014", change: null, changeIcon: Zap },
-          { id: "training", icon: Activity, color: "var(--success)", label: "Trainings", value: "\u2014", change: null, changeIcon: ArrowUp },
-          { id: "average", icon: BarChart3, color: "var(--warning)", label: "\u00D8 7 Tage", value: avg7 || "\u2014", change: null, changeIcon: TrendingDown },
-        ].map((stat) => (
-          <div key={stat.id} onClick={() => setActiveDetail(stat.id)} className="card p-4 transition-transform hover:-translate-y-0.5 cursor-pointer">
-            <div className="mb-2.5 flex items-start justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ background: `color-mix(in srgb, ${stat.color} 12%, transparent)` }}>
-                <stat.icon size={17} style={{ color: stat.color }} />
-              </div>
-              <ChevronRight size={15} style={{ color: "var(--text-muted)" }} />
-            </div>
-            <p className="font-numbers text-2xl" style={{ color: "var(--text)" }}>{stat.value}</p>
-            <p className="font-body mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>{stat.label}</p>
-            {stat.change && parseFloat(stat.change) !== 0 && (
-              <span className="font-body mt-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold"
-                    style={{ background: "color-mix(in srgb, var(--success) 12%, transparent)", color: "var(--success)" }}>
-                <stat.changeIcon size={11} /> {Math.abs(parseFloat(stat.change))}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-
       {/* Weight Chart */}
       {goal && weights.length > 0 && (
         <>
-          <div className="mt-5 flex items-center justify-between px-5">
-            <h2 className="font-heading text-lg" style={{ color: "var(--text)" }}>Gewichtsverlauf</h2>
-            <Link to="/charts" className="font-body flex items-center gap-1 text-xs" style={{ color: "var(--primary-light)" }}>
-              Alle anzeigen <ArrowRight size={13} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px 8px" }}>
+            <h2 className="font-heading" style={{ fontSize: 15, color: "var(--text)" }}>Gewichtsverlauf</h2>
+            <Link to="/charts" className="font-body" style={{ fontSize: 11, color: "var(--primary-light)", display: "flex", alignItems: "center", gap: 4 }}>
+              Alle <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="card mx-5 mt-3 p-4">
-            <WeightChart
-              entries={weights}
-              startWeight={goal.startWeight}
-              targetWeight={goal.targetWeight}
-              weeks={goal.weeks}
-              startDate={goal.startDate}
-            />
-            <div className="mt-3 flex justify-center gap-4">
-              {[
-                { color: "var(--primary)", label: "Taeglich" },
-                { color: "var(--accent)", label: "\u00D8 7 Tage" },
-                { color: "var(--primary-light)", label: "Soll", dashed: true },
-                { color: "var(--danger)", label: "Ziel", dashed: true },
-              ].map((l) => (
-                <div key={l.label} className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full" style={{ background: l.color, opacity: l.dashed ? 0.5 : 1 }} />
-                  <span className="font-body text-[10px]" style={{ color: "var(--text-muted)" }}>{l.label}</span>
-                </div>
-              ))}
-            </div>
+          <div className="card" style={{ margin: "0 20px", padding: 14 }}>
+            <WeightChart entries={weights} startWeight={goal.startWeight} targetWeight={goal.targetWeight} weeks={goal.weeks} startDate={goal.startDate} />
           </div>
         </>
       )}
 
-      {/* Activities section */}
-      <div className="mt-5 flex items-center justify-between px-5">
-        <h2 className="font-heading text-lg" style={{ color: "var(--text)" }}>Aktivitaeten</h2>
-        <Link to="/charts" className="font-body flex items-center gap-1 text-xs" style={{ color: "var(--primary-light)" }}>
-          Alle <ArrowRight size={13} />
-        </Link>
-      </div>
-      <div className="card mx-5 mt-3 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[10px]" style={{ background: "color-mix(in srgb, var(--accent) 12%, transparent)" }}>
-            <Footprints size={20} style={{ color: "var(--accent)" }} />
-          </div>
-          <div>
-            <p className="font-heading text-sm" style={{ color: "var(--text)" }}>Strava verbinden</p>
-            <p className="font-body text-[11px]" style={{ color: "var(--text-secondary)" }}>
-              Verbinde Strava im Profil fuer automatisches Tracking
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Detail Overlays */}
-      <DetailOverlay
-        open={activeDetail === "weight"}
-        onClose={() => setActiveDetail(null)}
-        title="Gewicht"
-        subtitle="Dein aktuelles Gewicht im Detail"
-        bigValue={currentWeight.toFixed(1)}
-        bigUnit="kg"
-        sections={[
-          {
-            title: "Uebersicht",
-            rows: [
-              { label: "Startgewicht", value: `${goal?.startWeight} kg` },
-              { label: "Aktuell", value: `${currentWeight.toFixed(1)} kg` },
-              { label: "Zielgewicht", value: `${goal?.targetWeight} kg` },
-              { label: "Verloren", value: `-${totalLoss.toFixed(1)} kg`, color: "var(--success)" },
-              { label: "Noch zu verlieren", value: `-${remaining.toFixed(1)} kg`, color: "var(--primary-light)" },
-              { label: "\u00D8 pro Woche", value: `${currentWeek > 0 ? (totalLoss / currentWeek).toFixed(2) : "\u2014"} kg` },
-              { label: "Benoetigt/Woche (Soll)", value: `-${weeklyNeeded.toFixed(2)} kg`, color: "var(--warning)" },
-              ...(projectedDate ? [{ label: "Prognose Ziel erreicht", value: projectedDate.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }), color: "var(--accent)" }] : []),
-            ],
-          },
-        ]}
-      />
-
-      <DetailOverlay
-        open={activeDetail === "calories"}
-        onClose={() => setActiveDetail(null)}
-        title="Kalorien heute"
-        subtitle="Dein Energieverbrauch im Detail"
-        bigValue={bmr > 0 ? bmr.toLocaleString() : "\u2014"}
-        bigUnit="kcal Grundumsatz"
-        sections={[
-          {
-            title: "Aufschluesselung",
-            rows: [
-              { label: "Grundumsatz (BMR)", value: `${bmr} kcal` },
-              { label: "Alltagsaktivitaet", value: `${dailyActivity} kcal` },
-              { label: "Training", value: "0 kcal", color: "var(--accent)" },
-              { label: "Gesamt", value: `${totalCal} kcal`, color: "var(--accent)", bold: true },
-            ],
-          },
-          {
-            title: "Empfehlung",
-            rows: [
-              { label: "Empf. Kalorienaufnahme", value: `${Math.max(bmr, totalCal - deficitPerDay)} kcal`, color: "var(--primary-light)" },
-              { label: "Damit Defizit von", value: `${deficitPerDay} kcal`, color: "var(--success)" },
-              { label: "= ca. Gewichtsverlust/Woche", value: `~${weeklyTarget.toFixed(1)} kg` },
-            ],
-          },
-        ]}
-      />
-
-      <DetailOverlay
-        open={activeDetail === "average"}
-        onClose={() => setActiveDetail(null)}
-        title="\u00D8 Gewicht (7 Tage)"
-        subtitle="Glaettet taegliche Schwankungen"
-        bigValue={avg7 || "\u2014"}
-        bigUnit="kg (7-Tage-Schnitt)"
-        sections={[
-          {
-            title: "Warum Durchschnitt?",
-            rows: [
-              { label: "Dein Gewicht schwankt taeglich um 1-2 kg durch Wasser und Nahrung. Der 7-Tage-Durchschnitt zeigt den echten Trend.", value: "" },
-            ],
-          },
-        ]}
-      />
-
-      <DetailOverlay
-        open={activeDetail === "training"}
-        onClose={() => setActiveDetail(null)}
-        title="Trainings"
-        subtitle="Deine Aktivitaeten"
-        bigValue="\u2014"
-        bigUnit="Diese Woche"
-        sections={[
-          {
-            title: "Info",
-            rows: [
-              { label: "Verbinde Strava im Profil fuer automatisches Tracking", value: "" },
-            ],
-          },
-        ]}
-      />
+      <DetailOverlay open={activeDetail === "weight"} onClose={() => setActiveDetail(null)} title="Gewicht" subtitle="Detail" bigValue={currentWeight.toFixed(1)} bigUnit="kg"
+        sections={[{ title: "Uebersicht", rows: [
+          { label: "Start", value: `${goal?.startWeight} kg` },
+          { label: "Aktuell", value: `${currentWeight.toFixed(1)} kg` },
+          { label: "Ziel", value: `${goal?.targetWeight} kg` },
+          { label: "Verloren", value: `-${totalLoss.toFixed(1)} kg` },
+          { label: "Noch", value: `-${remaining.toFixed(1)} kg` },
+          { label: "Benoetigt/Woche", value: `-${weeklyNeeded.toFixed(2)} kg` },
+          ...(projectedDate ? [{ label: "Prognose", value: projectedDate.toLocaleDateString("de-DE") }] : []),
+        ]}]} />
     </div>
   );
 }

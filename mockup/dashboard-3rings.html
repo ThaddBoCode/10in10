@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10in10 - 3x3 Rings</title>
+    <style>
+        @font-face{font-family:'ZF Prometo';src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Lt.woff2') format('woff2');font-weight:300;}
+        @font-face{font-family:'ZF Prometo';src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Md.woff2') format('woff2');font-weight:500;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'ZF Prometo',system-ui,sans-serif;background:#050505;color:#fff;font-weight:300;}
+
+        .phone{width:390px;height:844px;margin:20px auto;border-radius:40px;border:3px solid #333;overflow:hidden;position:relative;background:#0C0C1D;background-image:linear-gradient(135deg,#0C0C1D 0%,#1a0a2e 30%,#0C0C1D 50%,#0a1628 70%,#0C0C1D 100%);}
+        .notch{width:160px;height:34px;background:#000;border-radius:0 0 20px 20px;margin:0 auto;}
+        .scr{height:calc(100% - 34px);overflow-y:auto;padding-bottom:90px;}
+        .scr::-webkit-scrollbar{display:none;}
+        .cd{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);border-radius:16px;border:1px solid rgba(255,255,255,0.08);}
+
+        .ring-groups{display:flex;justify-content:center;gap:10px;margin:14px 16px;}
+        .rg{text-align:center;flex:1;cursor:pointer;transition:transform 0.2s;position:relative;}
+        .rg:hover{transform:scale(1.03);}
+        .rg-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);text-align:center;}
+        .rg-val{font-size:22px;font-weight:500;}
+        .rg-unit{font-size:8px;color:rgba(255,255,255,0.35);}
+        .rg-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-top:6px;font-weight:500;}
+        .rg-sub{font-size:8px;color:rgba(255,255,255,0.25);margin-top:1px;}
+
+        .legend{display:flex;justify-content:center;gap:12px;margin:6px 0;}
+        .leg{display:flex;align-items:center;gap:4px;font-size:8px;color:rgba(255,255,255,0.4);}
+        .leg-dot{width:6px;height:6px;border-radius:50%;}
+
+        .detail{margin:6px 16px;padding:12px;display:none;}
+        .detail.active{display:block;}
+        .detail-title{font-size:12px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+        .detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+        .detail-cell{padding:8px;border-radius:10px;background:rgba(255,255,255,0.03);}
+        .detail-cell .lbl{font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.5px;}
+        .detail-cell .val{font-size:16px;font-weight:500;margin-top:3px;}
+        .detail-cell .hint{font-size:7px;color:rgba(255,255,255,0.25);margin-top:1px;}
+
+        .week-bars{display:flex;gap:2px;align-items:flex-end;height:45px;margin-top:8px;}
+        .wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;}
+        .wb-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;}
+        .wb-l{font-size:6px;color:rgba(255,255,255,0.2);}
+
+        .meals{display:flex;gap:4px;margin:6px 16px;overflow-x:auto;}
+        .meals::-webkit-scrollbar{display:none;}
+        .meal{padding:5px 10px;border-radius:8px;white-space:nowrap;font-size:10px;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+        .meal .kcal{font-size:8px;color:rgba(255,255,255,0.3);}
+
+        .sec-head{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 4px;}
+        .sec-head h3{font-size:13px;font-weight:500;}
+
+        .streaks{display:flex;gap:6px;margin:8px 16px;}
+        .streak-box{flex:1;padding:8px;text-align:center;}
+        .streak-box .num{font-size:15px;font-weight:500;}
+        .streak-box .lbl{font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:2px;}
+
+        .tbar{position:absolute;bottom:0;left:0;right:0;height:85px;background:rgba(12,12,29,0.92);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);}
+        .tab{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .tab .ic{color:rgba(255,255,255,0.3);width:22px;height:22px;}
+        .tab.on .ic{color:#818CF8;}
+        .tab span{font-size:10px;color:rgba(255,255,255,0.3);}
+        .tab.on span{color:#818CF8;}
+        .tab-c{margin-top:-22px;}
+        .tab-c .ic{width:52px!important;height:52px!important;background:linear-gradient(135deg,#818CF8,#34D399);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white!important;box-shadow:0 4px 20px rgba(129,140,248,0.4);}
+    </style>
+</head>
+<body>
+<div class="phone">
+<div class="notch"></div>
+<div class="scr">
+
+    <div style="padding:14px 16px 0;font-size:13px;color:rgba(255,255,255,0.45);">Guten Tag,</div>
+    <div style="font-size:24px;font-weight:500;padding:2px 16px 0;">Max</div>
+
+    <!-- 3 RING GROUPS: each with 3 rings (Woche/Monat/Gesamt) + center number (Heute) -->
+    <div class="ring-groups">
+
+        <!-- GEWICHT -->
+        <div class="rg" onclick="showDetail('kg')">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+                <!-- Gesamt (outer) - 35% of 10kg -->
+                <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(251,113,133,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="48" fill="none" stroke="#FB7185" stroke-width="6"
+                    stroke-dasharray="302" stroke-dashoffset="196" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Monat - 70% of monthly target -->
+                <circle cx="55" cy="55" r="38" fill="none" stroke="rgba(251,191,36,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="38" fill="none" stroke="#FBBF24" stroke-width="6"
+                    stroke-dasharray="239" stroke-dashoffset="72" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Woche (inner) - 60% of -1.0kg -->
+                <circle cx="55" cy="55" r="28" fill="none" stroke="rgba(129,140,248,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="28" fill="none" stroke="#818CF8" stroke-width="6"
+                    stroke-dasharray="176" stroke-dashoffset="70" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+            </svg>
+            <div class="rg-center">
+                <div class="rg-val">86.5</div>
+                <div class="rg-unit">kg</div>
+            </div>
+            <div class="rg-label" style="color:#818CF8;">Gewicht</div>
+            <div class="rg-sub">-1.0 kg/Wo</div>
+        </div>
+
+        <!-- KALORIEN -->
+        <div class="rg" onclick="showDetail('cal')">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+                <!-- Gesamt - 40% -->
+                <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(251,113,133,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="48" fill="none" stroke="#FB7185" stroke-width="6"
+                    stroke-dasharray="302" stroke-dashoffset="181" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Monat - 65% -->
+                <circle cx="55" cy="55" r="38" fill="none" stroke="rgba(251,191,36,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="38" fill="none" stroke="#FBBF24" stroke-width="6"
+                    stroke-dasharray="239" stroke-dashoffset="84" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Woche - 69% of 3500 kcal -->
+                <circle cx="55" cy="55" r="28" fill="none" stroke="rgba(129,140,248,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="28" fill="none" stroke="#818CF8" stroke-width="6"
+                    stroke-dasharray="176" stroke-dashoffset="55" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+            </svg>
+            <div class="rg-center">
+                <div class="rg-val">342</div>
+                <div class="rg-unit">kcal</div>
+            </div>
+            <div class="rg-label" style="color:#34D399;">Kalorien</div>
+            <div class="rg-sub">3.500/Wo</div>
+        </div>
+
+        <!-- TRAINING -->
+        <div class="rg" onclick="showDetail('train')">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+                <!-- Gesamt - 45% -->
+                <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(251,113,133,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="48" fill="none" stroke="#FB7185" stroke-width="6"
+                    stroke-dasharray="302" stroke-dashoffset="166" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Monat - 70% -->
+                <circle cx="55" cy="55" r="38" fill="none" stroke="rgba(251,191,36,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="38" fill="none" stroke="#FBBF24" stroke-width="6"
+                    stroke-dasharray="239" stroke-dashoffset="72" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+                <!-- Woche - 60% = 3 of 5 -->
+                <circle cx="55" cy="55" r="28" fill="none" stroke="rgba(129,140,248,0.07)" stroke-width="6"/>
+                <circle cx="55" cy="55" r="28" fill="none" stroke="#818CF8" stroke-width="6"
+                    stroke-dasharray="176" stroke-dashoffset="70" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+            </svg>
+            <div class="rg-center">
+                <div class="rg-val">1</div>
+                <div class="rg-unit">heute</div>
+            </div>
+            <div class="rg-label" style="color:#FBBF24;">Training</div>
+            <div class="rg-sub">5x/Wo</div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:#818CF8;"></div>Woche</div>
+        <div class="leg"><div class="leg-dot" style="background:#FBBF24;"></div>Monat</div>
+        <div class="leg"><div class="leg-dot" style="background:#FB7185;"></div>Gesamt</div>
+    </div>
+
+    <!-- DETAIL: GEWICHT -->
+    <div class="detail cd active" id="detail-kg">
+        <div class="detail-title" style="color:#818CF8;">⚖️ Gewicht</div>
+        <div class="detail-grid">
+            <div class="detail-cell">
+                <div class="lbl">Woche</div>
+                <div class="val" style="color:#818CF8;">-0.6</div>
+                <div class="hint">Ziel -1.0 kg</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Monat</div>
+                <div class="val" style="color:#FBBF24;">-2.8</div>
+                <div class="hint">Ø -0.7/Wo</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Gesamt</div>
+                <div class="val" style="color:#FB7185;">-3.5</div>
+                <div class="hint">35% von 10 kg</div>
+            </div>
+        </div>
+        <div class="week-bars">
+            <div class="wb"><div class="wb-bar" style="height:92%;background:rgba(129,140,248,0.25);"></div><div class="wb-l">Mo</div></div>
+            <div class="wb"><div class="wb-bar" style="height:88%;background:rgba(129,140,248,0.25);"></div><div class="wb-l">Di</div></div>
+            <div class="wb"><div class="wb-bar" style="height:82%;background:rgba(129,140,248,0.3);"></div><div class="wb-l">Mi</div></div>
+            <div class="wb"><div class="wb-bar" style="height:84%;background:rgba(129,140,248,0.3);"></div><div class="wb-l">Do</div></div>
+            <div class="wb"><div class="wb-bar" style="height:78%;background:rgba(129,140,248,0.35);"></div><div class="wb-l">Fr</div></div>
+            <div class="wb"><div class="wb-bar" style="height:75%;background:linear-gradient(to top,#818CF8,#34D399);box-shadow:0 0 4px rgba(52,211,153,0.3);"></div><div class="wb-l" style="color:#A5B4FC;">Sa</div></div>
+            <div class="wb"><div class="wb-bar" style="height:4%;background:rgba(255,255,255,0.03);"></div><div class="wb-l">So</div></div>
+        </div>
+    </div>
+
+    <!-- DETAIL: KALORIEN -->
+    <div class="detail cd" id="detail-cal">
+        <div class="detail-title" style="color:#34D399;">🔥 Kalorien (Training)</div>
+        <div class="detail-grid">
+            <div class="detail-cell">
+                <div class="lbl">Woche</div>
+                <div class="val" style="color:#818CF8;">2.420</div>
+                <div class="hint">Ziel 3.500</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Monat</div>
+                <div class="val" style="color:#FBBF24;">9.8k</div>
+                <div class="hint">Ø 2.450/Wo</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Gesamt</div>
+                <div class="val" style="color:#FB7185;">14.2k</div>
+                <div class="hint">in 4 Wochen</div>
+            </div>
+        </div>
+        <div class="week-bars">
+            <div class="wb"><div class="wb-bar" style="height:68%;background:rgba(52,211,153,0.3);"></div><div class="wb-l">Mo</div></div>
+            <div class="wb"><div class="wb-bar" style="height:82%;background:rgba(52,211,153,0.35);"></div><div class="wb-l">Di</div></div>
+            <div class="wb"><div class="wb-bar" style="height:4%;background:rgba(255,255,255,0.03);"></div><div class="wb-l">Mi</div></div>
+            <div class="wb"><div class="wb-bar" style="height:94%;background:rgba(52,211,153,0.4);"></div><div class="wb-l">Do</div></div>
+            <div class="wb"><div class="wb-bar" style="height:72%;background:rgba(52,211,153,0.35);"></div><div class="wb-l">Fr</div></div>
+            <div class="wb"><div class="wb-bar" style="height:34%;background:linear-gradient(to top,#34D399,#34D399aa);box-shadow:0 0 4px rgba(52,211,153,0.3);"></div><div class="wb-l" style="color:#34D399;">Sa</div></div>
+            <div class="wb"><div class="wb-bar" style="height:3%;background:rgba(255,255,255,0.03);"></div><div class="wb-l">So</div></div>
+        </div>
+    </div>
+
+    <!-- DETAIL: TRAINING -->
+    <div class="detail cd" id="detail-train">
+        <div class="detail-title" style="color:#FBBF24;">💪 Training</div>
+        <div class="detail-grid">
+            <div class="detail-cell">
+                <div class="lbl">Woche</div>
+                <div class="val" style="color:#818CF8;">3/5</div>
+                <div class="hint">noch 2</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Monat</div>
+                <div class="val" style="color:#FBBF24;">14</div>
+                <div class="hint">Ø 3.5/Wo</div>
+            </div>
+            <div class="detail-cell">
+                <div class="lbl">Gesamt</div>
+                <div class="val" style="color:#FB7185;">18</div>
+                <div class="hint">in 4 Wochen</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:8px;justify-content:center;">
+            <div style="width:32px;height:28px;border-radius:6px;background:#34D399;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;">Mo ✓</div>
+            <div style="width:32px;height:28px;border-radius:6px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(255,255,255,0.2);">Di</div>
+            <div style="width:32px;height:28px;border-radius:6px;background:#34D399;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;">Mi ✓</div>
+            <div style="width:32px;height:28px;border-radius:6px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(255,255,255,0.2);">Do</div>
+            <div style="width:32px;height:28px;border-radius:6px;background:#34D399;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;">Fr ✓</div>
+            <div style="width:32px;height:28px;border-radius:6px;border:1.5px solid #818CF8;display:flex;align-items:center;justify-content:center;font-size:7px;color:#818CF8;">Sa ✓</div>
+            <div style="width:32px;height:28px;border-radius:6px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(255,255,255,0.15);">So</div>
+        </div>
+    </div>
+
+    <!-- ESSEN -->
+    <div class="sec-head"><h3>Heute gegessen</h3><span style="font-size:10px;color:#FB7185;">1.450 kcal</span></div>
+    <div class="meals">
+        <div class="meal cd">☕ Kaffee <span class="kcal">20</span></div>
+        <div class="meal cd">🥣 Muesli <span class="kcal">350</span></div>
+        <div class="meal cd">🥙 Kebab <span class="kcal">650</span></div>
+        <div class="meal cd">🍎 Apfel <span class="kcal">90</span></div>
+        <div class="meal cd">🥤 Cola <span class="kcal">140</span></div>
+        <div class="meal" style="background:rgba(52,211,153,0.08);border:1px dashed rgba(52,211,153,0.25);color:#34D399;">+</div>
+    </div>
+
+    <!-- BILANZ -->
+    <div style="margin:8px 16px;padding:10px 12px;border-radius:12px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.1);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.3);">BILANZ HEUTE</div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.2);">2.640 verbrannt − 1.450 gegessen</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:500;color:#34D399;">-1.190</div>
+            <div style="font-size:7px;color:#34D399;">kcal Defizit ✓</div>
+        </div>
+    </div>
+
+    <!-- STREAKS -->
+    <div class="streaks">
+        <div class="streak-box cd"><div class="num">🔥 12</div><div class="lbl">Wiegen</div></div>
+        <div class="streak-box cd"><div class="num">💪 3</div><div class="lbl">Training-Wo</div></div>
+        <div class="streak-box cd"><div class="num">🍽️ 5</div><div class="lbl">Essen</div></div>
+    </div>
+
+</div>
+
+<div class="tbar">
+    <div class="tab on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Home</span></div>
+    <div class="tab"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Training</span></div>
+    <div class="tab tab-c"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><path d="M6 7v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><path d="M2 12h20"/><path d="M12 12v9"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg></div><span style="margin-top:6px;">Wiegen</span></div>
+    <div class="tab"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Team</span></div>
+    <div class="tab"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg><span>Profil</span></div>
+</div>
+</div>
+
+<script>
+function showDetail(id) {
+    ['kg','cal','train'].forEach(d => document.getElementById('detail-'+d).classList.remove('active'));
+    document.getElementById('detail-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

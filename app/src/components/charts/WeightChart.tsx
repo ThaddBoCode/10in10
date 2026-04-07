@@ -143,7 +143,7 @@ export function WeightChart({
             const labels: Record<string, string> = {
               actual: "Gewicht",
               planned: "Soll",
-              average: "\u00D8 7 Tage",
+              average: "Ø 7 Tage",
             };
             return [`${value} kg`, labels[String(name)] || String(name)];
           }}

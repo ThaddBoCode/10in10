@@ -247,7 +247,7 @@ export default function TeamPage() {
                     {m.name}{m.isMe ? " (Du)" : ""}
                   </p>
                   <p className="font-numbers text-base font-bold" style={{ color: "var(--success)" }}>
-                    {m.weightLoss !== null ? `-${m.weightLoss} kg` : "\u2014"}
+                    {m.weightLoss !== null ? `-${m.weightLoss} kg` : "—"}
                   </p>
                 </div>
                 <div className="mt-1 flex items-center gap-2">

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10in10 - Nested Rings Dashboard</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @font-face{font-family:'ZF Prometo';src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Lt.woff2') format('woff2');font-weight:300;}
+        @font-face{font-family:'ZF Prometo';src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Md.woff2') format('woff2');font-weight:500;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'ZF Prometo',system-ui,sans-serif;background:#050505;color:#fff;font-weight:300;}
+
+        .sel{position:fixed;top:0;left:0;right:0;z-index:99;background:#111;padding:10px 16px;border-bottom:1px solid #333;display:flex;gap:6px;align-items:center;}
+        .sel span{font-size:11px;color:#555;font-weight:500;}
+        .sel button{padding:7px 14px;border-radius:8px;border:2px solid #333;background:#111;color:#777;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;}
+        .sel button.active{border-color:#818CF8;color:#fff;}
+
+        .phone{width:390px;height:844px;margin:60px auto 20px;border-radius:40px;border:3px solid #333;overflow:hidden;position:relative;background:#0C0C1D;background-image:linear-gradient(135deg,#0C0C1D 0%,#1a0a2e 30%,#0C0C1D 50%,#0a1628 70%,#0C0C1D 100%);}
+        .notch{width:160px;height:34px;background:#000;border-radius:0 0 20px 20px;margin:0 auto;}
+        .scr{height:calc(100% - 34px);overflow-y:auto;padding-bottom:90px;}
+        .scr::-webkit-scrollbar{display:none;}
+        .V{display:none;}.V.active{display:block;}
+
+        .cd{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);}
+
+        /* Ring colors */
+        .c-today{color:#34D399;}
+        .c-week{color:#818CF8;}
+        .c-month{color:#FBBF24;}
+        .c-total{color:#FB7185;}
+
+        /* Legend */
+        .legend{display:flex;justify-content:center;gap:14px;margin:12px 0;}
+        .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.5);}
+        .legend-dot{width:8px;height:8px;border-radius:50%;}
+
+        /* Detail sections */
+        .detail-section{margin:8px 20px;}
+        .detail-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 6px;}
+        .detail-header h3{font-size:14px;font-weight:500;}
+        .detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;}
+        .detail-row:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.04);}
+        .detail-label{font-size:12px;color:rgba(255,255,255,0.5);}
+        .detail-value{font-size:13px;font-weight:500;}
+
+        .metric-strip{display:flex;gap:6px;margin:8px 20px;}
+        .metric-box{flex:1;padding:10px;border-radius:14px;text-align:center;}
+        .metric-box .v{font-size:18px;font-weight:500;}
+        .metric-box .l{font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
+        /* Active ring highlight */
+        .ring-touch{cursor:pointer;transition:opacity 0.2s;}
+        .ring-touch:hover{opacity:0.8;}
+
+        /* Status badge */
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:500;}
+        .badge-ok{background:rgba(52,211,153,0.12);color:#34D399;}
+
+        /* Bars */
+        .bars{display:flex;align-items:flex-end;gap:3px;height:80px;}
+        .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+        .bar-item{width:100%;border-radius:4px 4px 0 0;min-height:3px;}
+        .bar-label{font-size:7px;color:rgba(255,255,255,0.25);}
+        .bar-val{font-size:7px;color:rgba(255,255,255,0.4);margin-bottom:1px;}
+
+        /* Tab bar */
+        .tbar{position:absolute;bottom:0;left:0;right:0;height:85px;background:rgba(12,12,29,0.9);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);}
+        .tab{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .tab .ic{color:rgba(255,255,255,0.3);}
+        .tab.on .ic{color:#818CF8;}
+        .tab span{font-size:10px;color:rgba(255,255,255,0.3);}
+        .tab.on span{color:#818CF8;}
+        .tab-c{margin-top:-22px;}
+        .tab-c .ic{width:52px;height:52px;background:linear-gradient(135deg,#818CF8,#34D399);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white!important;box-shadow:0 4px 20px rgba(129,140,248,0.4);}
+
+        /* Meal chips */
+        .meal-row{display:flex;gap:6px;padding:0 20px;margin:6px 0;overflow-x:auto;}
+        .meal-row::-webkit-scrollbar{display:none;}
+        .meal-chip{padding:6px 12px;border-radius:10px;white-space:nowrap;font-size:11px;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+    </style>
+</head>
+<body>
+
+<div class="sel">
+    <span>Variante:</span>
+    <button class="active" onclick="show('1')">V1: Classic Rings</button>
+    <button onclick="show('2')">V2: Rings + Details</button>
+    <button onclick="show('3')">V3: Rings + Timeline</button>
+</div>
+
+<div class="phone">
+<div class="notch"></div>
+<div class="scr">
+
+<!-- ============ V1: Classic Nested Rings ============ -->
+<div class="V active" id="V-1">
+    <div style="padding:16px 20px 0;font-size:14px;color:rgba(255,255,255,0.5);">Guten Tag,</div>
+    <div style="font-size:26px;font-weight:500;padding:2px 20px 0;">Max</div>
+
+    <!-- Nested Rings -->
+    <div style="display:flex;justify-content:center;margin:16px 0;position:relative;">
+        <svg width="260" height="260" viewBox="0 0 260 260">
+            <!-- Ring 4: Gesamt (outermost) -->
+            <circle cx="130" cy="130" r="120" fill="none" stroke="rgba(251,113,133,0.08)" stroke-width="10"/>
+            <circle cx="130" cy="130" r="120" fill="none" stroke="#FB7185" stroke-width="10"
+                    stroke-dasharray="754" stroke-dashoffset="490" stroke-linecap="round"
+                    transform="rotate(-90 130 130)" class="ring-touch"/>
+
+            <!-- Ring 3: Monat -->
+            <circle cx="130" cy="130" r="96" fill="none" stroke="rgba(251,191,36,0.08)" stroke-width="10"/>
+            <circle cx="130" cy="130" r="96" fill="none" stroke="#FBBF24" stroke-width="10"
+                    stroke-dasharray="603" stroke-dashoffset="241" stroke-linecap="round"
+                    transform="rotate(-90 130 130)" class="ring-touch"/>
+
+            <!-- Ring 2: Woche -->
+            <circle cx="130" cy="130" r="72" fill="none" stroke="rgba(129,140,248,0.08)" stroke-width="10"/>
+            <circle cx="130" cy="130" r="72" fill="none" stroke="#818CF8" stroke-width="10"
+                    stroke-dasharray="452" stroke-dashoffset="136" stroke-linecap="round"
+                    transform="rotate(-90 130 130)" class="ring-touch"/>
+
+            <!-- Ring 1: Heute (innermost) -->
+            <circle cx="130" cy="130" r="48" fill="none" stroke="rgba(52,211,153,0.08)" stroke-width="10"/>
+            <circle cx="130" cy="130" r="48" fill="none" stroke="#34D399" stroke-width="10"
+                    stroke-dasharray="302" stroke-dashoffset="91" stroke-linecap="round"
+                    transform="rotate(-90 130 130)" class="ring-touch"/>
+        </svg>
+
+        <!-- Center text -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+            <div style="font-size:32px;font-weight:500;">86.5</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">kg aktuell</div>
+            <div class="badge badge-ok" style="margin-top:6px;font-size:9px;"><i data-lucide="trending-down" style="width:10px;height:10px;"></i> Auf Kurs</div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#34D399;"></div>Heute 70%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#818CF8;"></div>Woche 70%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FBBF24;"></div>Monat 60%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FB7185;"></div>Gesamt 35%</div>
+    </div>
+
+    <!-- Quick metrics -->
+    <div class="metric-strip">
+        <div class="metric-box cd">
+            <div class="v c-today">-420</div>
+            <div class="l">kcal Defizit heute</div>
+        </div>
+        <div class="metric-box cd">
+            <div class="v c-week">3/5</div>
+            <div class="l">Trainings Woche</div>
+        </div>
+        <div class="metric-box cd">
+            <div class="v c-total">-3.5</div>
+            <div class="l">kg verloren</div>
+        </div>
+    </div>
+
+    <!-- Today's meals -->
+    <div class="detail-section">
+        <div class="detail-header"><h3>Heute gegessen</h3><span style="font-size:11px;color:#34D399;">1.450 kcal</span></div>
+        <div class="meal-row">
+            <div class="meal-chip cd">☕ Kaffee m. Milch <span style="color:rgba(255,255,255,0.3);font-size:9px;">20</span></div>
+            <div class="meal-chip cd">🥣 Muesli <span style="color:rgba(255,255,255,0.3);font-size:9px;">350</span></div>
+            <div class="meal-chip cd">🥙 Kebab <span style="color:rgba(255,255,255,0.3);font-size:9px;">650</span></div>
+            <div class="meal-chip cd">🍎 Apfel <span style="color:rgba(255,255,255,0.3);font-size:9px;">90</span></div>
+            <div class="meal-chip" style="background:rgba(52,211,153,0.1);border:1px dashed rgba(52,211,153,0.3);color:#34D399;">+ hinzufuegen</div>
+        </div>
+    </div>
+
+    <!-- Week bars -->
+    <div class="detail-section">
+        <div class="detail-header"><h3>Gewicht diese Woche</h3></div>
+        <div class="cd" style="padding:12px;">
+            <div class="bars">
+                <div class="bar-col"><div class="bar-val">87.1</div><div class="bar-item" style="height:90%;background:rgba(129,140,248,0.3);"></div><div class="bar-label">Mo</div></div>
+                <div class="bar-col"><div class="bar-val">87.0</div><div class="bar-item" style="height:88%;background:rgba(129,140,248,0.3);"></div><div class="bar-label">Di</div></div>
+                <div class="bar-col"><div class="bar-val">86.8</div><div class="bar-item" style="height:82%;background:rgba(129,140,248,0.35);"></div><div class="bar-label">Mi</div></div>
+                <div class="bar-col"><div class="bar-val">86.9</div><div class="bar-item" style="height:84%;background:rgba(129,140,248,0.35);"></div><div class="bar-label">Do</div></div>
+                <div class="bar-col"><div class="bar-val">86.6</div><div class="bar-item" style="height:78%;background:rgba(129,140,248,0.4);"></div><div class="bar-label">Fr</div></div>
+                <div class="bar-col"><div class="bar-val" style="color:#34D399;">86.5</div><div class="bar-item" style="height:75%;background:linear-gradient(to top,#818CF8,#34D399);box-shadow:0 0 6px rgba(52,211,153,0.3);"></div><div class="bar-label" style="color:#A5B4FC;">Sa</div></div>
+                <div class="bar-col"><div class="bar-val" style="color:rgba(255,255,255,0.15);">—</div><div class="bar-item" style="height:5%;background:rgba(255,255,255,0.04);"></div><div class="bar-label">So</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Streak -->
+    <div style="display:flex;align-items:center;gap:8px;margin:8px 20px;padding:10px 14px;border-radius:14px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.1);">
+        <span style="font-size:18px;">🔥</span>
+        <span style="font-size:16px;font-weight:500;">12</span>
+        <span style="font-size:10px;color:rgba(255,255,255,0.4);">Tage gewogen</span>
+        <span style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.3);">🏋️ 3 Wo. Training</span>
+    </div>
+</div>
+
+<!-- ============ V2: Rings + Expandable Details ============ -->
+<div class="V" id="V-2">
+    <div style="padding:16px 20px 0;font-size:14px;color:rgba(255,255,255,0.5);">Guten Tag,</div>
+    <div style="font-size:26px;font-weight:500;padding:2px 20px 0;">Max</div>
+
+    <!-- Compact rings in a row -->
+    <div style="display:flex;justify-content:center;gap:6px;margin:16px 20px;">
+        <!-- Heute -->
+        <div style="text-align:center;flex:1;" onclick="toggleDetail('d-today')" class="ring-touch">
+            <div style="position:relative;width:76px;height:76px;margin:0 auto;">
+                <svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="rgba(52,211,153,0.08)" stroke-width="5"/><circle cx="38" cy="38" r="32" fill="none" stroke="#34D399" stroke-width="5" stroke-dasharray="201" stroke-dashoffset="60" stroke-linecap="round" transform="rotate(-90 38 38)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:500;">70%</div>
+            </div>
+            <div style="font-size:9px;color:#34D399;margin-top:4px;font-weight:500;">HEUTE</div>
+        </div>
+        <!-- Woche -->
+        <div style="text-align:center;flex:1;" onclick="toggleDetail('d-week')" class="ring-touch">
+            <div style="position:relative;width:76px;height:76px;margin:0 auto;">
+                <svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="rgba(129,140,248,0.08)" stroke-width="5"/><circle cx="38" cy="38" r="32" fill="none" stroke="#818CF8" stroke-width="5" stroke-dasharray="201" stroke-dashoffset="60" stroke-linecap="round" transform="rotate(-90 38 38)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:500;">70%</div>
+            </div>
+            <div style="font-size:9px;color:#818CF8;margin-top:4px;font-weight:500;">WOCHE</div>
+        </div>
+        <!-- Monat -->
+        <div style="text-align:center;flex:1;" onclick="toggleDetail('d-month')" class="ring-touch">
+            <div style="position:relative;width:76px;height:76px;margin:0 auto;">
+                <svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="rgba(251,191,36,0.08)" stroke-width="5"/><circle cx="38" cy="38" r="32" fill="none" stroke="#FBBF24" stroke-width="5" stroke-dasharray="201" stroke-dashoffset="80" stroke-linecap="round" transform="rotate(-90 38 38)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:500;">60%</div>
+            </div>
+            <div style="font-size:9px;color:#FBBF24;margin-top:4px;font-weight:500;">MONAT</div>
+        </div>
+        <!-- Gesamt -->
+        <div style="text-align:center;flex:1;" onclick="toggleDetail('d-total')" class="ring-touch">
+            <div style="position:relative;width:76px;height:76px;margin:0 auto;">
+                <svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="32" fill="none" stroke="rgba(251,113,133,0.08)" stroke-width="5"/><circle cx="38" cy="38" r="32" fill="none" stroke="#FB7185" stroke-width="5" stroke-dasharray="201" stroke-dashoffset="131" stroke-linecap="round" transform="rotate(-90 38 38)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:500;">35%</div>
+            </div>
+            <div style="font-size:9px;color:#FB7185;margin-top:4px;font-weight:500;">GESAMT</div>
+        </div>
+    </div>
+
+    <!-- Expandable: Today -->
+    <div id="d-today" class="detail-section cd" style="padding:14px;display:block;">
+        <div style="font-size:13px;font-weight:500;color:#34D399;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="sun" style="width:14px;height:14px;"></i> Heute
+        </div>
+        <div class="detail-row"><span class="detail-label">Gewicht</span><span class="detail-value">86.5 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Gegessen</span><span class="detail-value" style="color:#FB7185;">1.450 kcal</span></div>
+        <div class="detail-row"><span class="detail-label">Verbrannt</span><span class="detail-value" style="color:#34D399;">2.640 kcal</span></div>
+        <div class="detail-row"><span class="detail-label">Training</span><span class="detail-value">Morgenlauf 342 kcal</span></div>
+        <div class="detail-row" style="background:rgba(52,211,153,0.06);border-radius:10px;margin:4px -4px;padding:10px 14px;"><span class="detail-label" style="font-weight:500;">Defizit heute</span><span class="detail-value" style="color:#34D399;font-size:16px;">-1.190 kcal ✓</span></div>
+    </div>
+
+    <!-- Expandable: Week -->
+    <div id="d-week" class="detail-section cd" style="padding:14px;display:none;">
+        <div style="font-size:13px;font-weight:500;color:#818CF8;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="calendar" style="width:14px;height:14px;"></i> Diese Woche
+        </div>
+        <div class="detail-row"><span class="detail-label">Gewicht Mo → Sa</span><span class="detail-value">87.1 → 86.5 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Wochenverlust</span><span class="detail-value" style="color:#34D399;">-0.6 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Trainings</span><span class="detail-value">3 von 5</span></div>
+        <div class="detail-row"><span class="detail-label">Ø Defizit/Tag</span><span class="detail-value" style="color:#34D399;">-680 kcal</span></div>
+        <div class="detail-row"><span class="detail-label">Tage gewogen</span><span class="detail-value">6 von 7</span></div>
+        <div class="detail-row" style="background:rgba(129,140,248,0.06);border-radius:10px;margin:4px -4px;padding:10px 14px;"><span class="detail-label" style="font-weight:500;">Wochenziel -1.0 kg</span><span class="detail-value" style="color:#FBBF24;">noch -0.4 kg</span></div>
+    </div>
+
+    <!-- Expandable: Month -->
+    <div id="d-month" class="detail-section cd" style="padding:14px;display:none;">
+        <div style="font-size:13px;font-weight:500;color:#FBBF24;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="calendar-range" style="width:14px;height:14px;"></i> Dieser Monat
+        </div>
+        <div class="detail-row"><span class="detail-label">Gewichtsverlust</span><span class="detail-value" style="color:#34D399;">-2.8 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Beste Woche</span><span class="detail-value">W2: -1.2 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Trainings gesamt</span><span class="detail-value">14 Einheiten</span></div>
+        <div class="detail-row"><span class="detail-label">Ø Defizit/Woche</span><span class="detail-value" style="color:#34D399;">-4.760 kcal</span></div>
+        <div class="detail-row"><span class="detail-label">Ø Gewicht</span><span class="detail-value">87.2 kg</span></div>
+    </div>
+
+    <!-- Expandable: Total -->
+    <div id="d-total" class="detail-section cd" style="padding:14px;display:none;">
+        <div style="font-size:13px;font-weight:500;color:#FB7185;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="target" style="width:14px;height:14px;"></i> Gesamtfortschritt
+        </div>
+        <div class="detail-row"><span class="detail-label">Start → Aktuell</span><span class="detail-value">90.0 → 86.5 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Verloren</span><span class="detail-value" style="color:#34D399;">-3.5 kg (35%)</span></div>
+        <div class="detail-row"><span class="detail-label">Noch</span><span class="detail-value" style="color:#FB7185;">-6.5 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Ø pro Woche</span><span class="detail-value">-0.88 kg</span></div>
+        <div class="detail-row"><span class="detail-label">Trainings total</span><span class="detail-value">18 Einheiten</span></div>
+        <div class="detail-row"><span class="detail-label">Prognose Ziel</span><span class="detail-value" style="color:#A5B4FC;">18. Mai 2026</span></div>
+    </div>
+
+    <!-- Streaks -->
+    <div style="display:flex;gap:6px;margin:8px 20px;">
+        <div class="cd" style="flex:1;padding:10px;text-align:center;">
+            <div style="font-size:18px;">🔥</div>
+            <div style="font-size:16px;font-weight:500;">12</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Wiege-Streak</div>
+        </div>
+        <div class="cd" style="flex:1;padding:10px;text-align:center;">
+            <div style="font-size:18px;">🏋️</div>
+            <div style="font-size:16px;font-weight:500;">3</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Training-Wochen</div>
+        </div>
+        <div class="cd" style="flex:1;padding:10px;text-align:center;">
+            <div style="font-size:18px;">🍽️</div>
+            <div style="font-size:16px;font-weight:500;">5</div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Essen-Streak</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ V3: Nested Rings + Timeline ============ -->
+<div class="V" id="V-3">
+    <div style="padding:16px 20px 0;font-size:14px;color:rgba(255,255,255,0.5);">Guten Tag,</div>
+    <div style="font-size:26px;font-weight:500;padding:2px 20px 0;">Max</div>
+
+    <!-- Nested rings with glow -->
+    <div style="display:flex;justify-content:center;margin:12px 0;position:relative;">
+        <svg width="220" height="220" viewBox="0 0 220 220">
+            <defs>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <!-- Gesamt -->
+            <circle cx="110" cy="110" r="100" fill="none" stroke="rgba(251,113,133,0.06)" stroke-width="8"/>
+            <circle cx="110" cy="110" r="100" fill="none" stroke="#FB7185" stroke-width="8" stroke-dasharray="628" stroke-dashoffset="408" stroke-linecap="round" transform="rotate(-90 110 110)" filter="url(#glow)"/>
+            <!-- Monat -->
+            <circle cx="110" cy="110" r="82" fill="none" stroke="rgba(251,191,36,0.06)" stroke-width="8"/>
+            <circle cx="110" cy="110" r="82" fill="none" stroke="#FBBF24" stroke-width="8" stroke-dasharray="515" stroke-dashoffset="206" stroke-linecap="round" transform="rotate(-90 110 110)" filter="url(#glow)"/>
+            <!-- Woche -->
+            <circle cx="110" cy="110" r="64" fill="none" stroke="rgba(129,140,248,0.06)" stroke-width="8"/>
+            <circle cx="110" cy="110" r="64" fill="none" stroke="#818CF8" stroke-width="8" stroke-dasharray="402" stroke-dashoffset="121" stroke-linecap="round" transform="rotate(-90 110 110)" filter="url(#glow)"/>
+            <!-- Heute -->
+            <circle cx="110" cy="110" r="46" fill="none" stroke="rgba(52,211,153,0.06)" stroke-width="8"/>
+            <circle cx="110" cy="110" r="46" fill="none" stroke="#34D399" stroke-width="8" stroke-dasharray="289" stroke-dashoffset="87" stroke-linecap="round" transform="rotate(-90 110 110)" filter="url(#glow)"/>
+        </svg>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+            <div style="font-size:28px;font-weight:500;">-3.5</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">von 10 kg</div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#34D399;"></div>Heute</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#818CF8;"></div>Woche</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FBBF24;"></div>Monat</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FB7185;"></div>Gesamt</div>
+    </div>
+
+    <!-- Kalorien-Bilanz heute -->
+    <div class="cd" style="margin:6px 20px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:12px;font-weight:500;">Kalorien-Bilanz heute</span>
+            <span class="badge badge-ok" style="font-size:9px;"><i data-lucide="check" style="width:9px;height:9px;"></i> Im Defizit</span>
+        </div>
+        <!-- Stacked bar -->
+        <div style="display:flex;height:28px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,0.04);">
+            <div style="width:55%;background:linear-gradient(90deg,rgba(251,113,133,0.4),rgba(251,113,133,0.6));display:flex;align-items:center;padding-left:8px;font-size:9px;color:white;">Gegessen 1.450</div>
+            <div style="flex:1;background:linear-gradient(90deg,rgba(52,211,153,0.3),rgba(52,211,153,0.5));display:flex;align-items:center;justify-content:center;font-size:9px;color:white;">Defizit 1.190</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:rgba(255,255,255,0.3);">
+            <span>Verbrauch: 2.640 kcal</span>
+            <span>Ziel-Defizit: 550 kcal ✓</span>
+        </div>
+    </div>
+
+    <!-- 10 week timeline -->
+    <div class="detail-section">
+        <div class="detail-header"><h3>10-Wochen Verlauf</h3></div>
+        <div class="cd" style="padding:12px;">
+            <div style="display:flex;gap:2px;align-items:flex-end;height:60px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:6px;color:rgba(255,255,255,0.4);margin-bottom:2px;">-1.2</div>
+                    <div style="width:100%;height:48px;border-radius:4px;background:linear-gradient(to top,rgba(52,211,153,0.3),rgba(52,211,153,0.5));"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.25);margin-top:2px;">W1</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:6px;color:rgba(255,255,255,0.4);margin-bottom:2px;">-1.0</div>
+                    <div style="width:100%;height:40px;border-radius:4px;background:linear-gradient(to top,rgba(52,211,153,0.3),rgba(52,211,153,0.5));"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.25);margin-top:2px;">W2</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:6px;color:rgba(255,255,255,0.4);margin-bottom:2px;">-0.8</div>
+                    <div style="width:100%;height:32px;border-radius:4px;background:linear-gradient(to top,rgba(251,191,36,0.3),rgba(251,191,36,0.5));"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.25);margin-top:2px;">W3</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:6px;color:#34D399;margin-bottom:2px;">-0.5</div>
+                    <div style="width:100%;height:20px;border-radius:4px;background:linear-gradient(to top,#818CF8,#34D399);box-shadow:0 0 6px rgba(52,211,153,0.3);"></div>
+                    <div style="font-size:6px;color:#A5B4FC;margin-top:2px;font-weight:500;">W4</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:6px;color:rgba(255,255,255,0.1);">—</div>
+                    <div style="width:100%;height:6px;border-radius:4px;border:1px dashed rgba(255,255,255,0.06);"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.12);margin-top:2px;">W5</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="height:8px;"></div>
+                    <div style="width:100%;height:6px;border-radius:4px;border:1px dashed rgba(255,255,255,0.06);"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.12);margin-top:2px;">W6</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div style="height:8px;"></div>
+                    <div style="width:100%;height:6px;border-radius:4px;border:1px dashed rgba(255,255,255,0.06);"></div>
+                    <div style="font-size:6px;color:rgba(255,255,255,0.12);margin-top:2px;">W7-10</div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:8px;color:rgba(255,255,255,0.2);">
+                <span>90.0 kg Start</span>
+                <span style="color:rgba(251,113,133,0.4);">→ 80.0 kg Ziel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Streaks -->
+    <div style="display:flex;gap:6px;margin:8px 20px;">
+        <div class="cd" style="flex:1;padding:10px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">🔥</span>
+            <div><div style="font-size:14px;font-weight:500;">12</div><div style="font-size:7px;color:rgba(255,255,255,0.3);">Wiegen</div></div>
+        </div>
+        <div class="cd" style="flex:1;padding:10px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">💪</span>
+            <div><div style="font-size:14px;font-weight:500;">3 Wo</div><div style="font-size:7px;color:rgba(255,255,255,0.3);">Training</div></div>
+        </div>
+        <div class="cd" style="flex:1;padding:10px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px;">🍽️</span>
+            <div><div style="font-size:14px;font-weight:500;">5</div><div style="font-size:7px;color:rgba(255,255,255,0.3);">Essen</div></div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="tbar">
+    <div class="tab on"><div class="ic"><i data-lucide="layout-dashboard" style="width:22px;height:22px;"></i></div><span>Home</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="activity" style="width:22px;height:22px;"></i></div><span>Training</span></div>
+    <div class="tab tab-c"><div class="ic"><i data-lucide="scale" style="width:24px;height:24px;"></i></div><span style="margin-top:6px;">Wiegen</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="users" style="width:22px;height:22px;"></i></div><span>Team</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="user-circle" style="width:22px;height:22px;"></i></div><span>Profil</span></div>
+</div>
+</div>
+
+<script>
+function show(id){
+    document.querySelectorAll('.V').forEach(l=>l.classList.remove('active'));
+    document.getElementById('V-'+id).classList.add('active');
+    document.querySelectorAll('.sel button').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+    lucide.createIcons();
+}
+function toggleDetail(id){
+    const el=document.getElementById(id);
+    const all=['d-today','d-week','d-month','d-total'];
+    all.forEach(a=>{if(a!==id)document.getElementById(a).style.display='none';});
+    el.style.display=el.style.display==='none'?'block':'none';
+}
+document.addEventListener('DOMContentLoaded',()=>lucide.createIcons());
+</script>
+</body>
+</html>

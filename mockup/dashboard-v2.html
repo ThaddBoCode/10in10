@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10in10 - Dashboard v2</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @font-face { font-family:'ZF Prometo'; src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Lt.woff2') format('woff2'); font-weight:300; }
+        @font-face { font-family:'ZF Prometo'; src:url('../Font/Font/Webfonts/WOFF2/ZFPrometo_W_Md.woff2') format('woff2'); font-weight:500; }
+
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'ZF Prometo',system-ui,sans-serif;background:#050505;color:#fff;font-weight:300;}
+
+        .sel{position:fixed;top:0;left:0;right:0;z-index:99;background:#111;padding:10px 16px;border-bottom:1px solid #333;display:flex;gap:6px;align-items:center;overflow-x:auto;}
+        .sel::-webkit-scrollbar{display:none;}
+        .sel span{font-size:11px;color:#555;font-weight:500;white-space:nowrap;}
+        .sel button{padding:7px 14px;border-radius:8px;border:2px solid #333;background:#111;color:#777;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;}
+        .sel button.active{border-color:#818CF8;color:#fff;}
+
+        .phone{width:390px;height:844px;margin:60px auto 20px;border-radius:40px;border:3px solid #333;overflow:hidden;position:relative;background:#0C0C1D;background-image:linear-gradient(135deg,#0C0C1D 0%,#1a0a2e 30%,#0C0C1D 50%,#0a1628 70%,#0C0C1D 100%);}
+        .notch{width:160px;height:34px;background:#000;border-radius:0 0 20px 20px;margin:0 auto;}
+        .scr{height:calc(100% - 34px);overflow-y:auto;padding-bottom:90px;}
+        .scr::-webkit-scrollbar{display:none;}
+
+        .L{display:none;} .L.active{display:block;}
+
+        /* Shared */
+        .cd{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);border-radius:20px;border:1px solid rgba(255,255,255,0.08);}
+        .gr{padding:16px 20px 0;font-size:14px;color:rgba(255,255,255,0.5);}
+        .nm{font-size:26px;font-weight:500;padding:2px 20px 0;}
+        .sec{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 8px;}
+        .sec h3{font-size:15px;font-weight:500;}
+        .sec a{font-size:11px;color:#A5B4FC;}
+
+        /* Time tabs */
+        .time-tabs{display:flex;gap:4px;padding:0 20px;margin:12px 0;}
+        .tt{padding:6px 14px;border-radius:10px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,0.3);font-family:inherit;}
+        .tt.active{background:rgba(129,140,248,0.15);color:#A5B4FC;}
+
+        /* Ring */
+        .ring-wrap{display:flex;justify-content:center;position:relative;margin:8px 0;}
+        .ring-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+        .ring-big{font-size:36px;font-weight:500;}
+        .ring-sub{font-size:10px;color:rgba(255,255,255,0.4);}
+
+        /* Metric strip */
+        .mstrip{display:flex;gap:6px;padding:0 20px;margin:8px 0;}
+        .mbox{flex:1;padding:10px;border-radius:14px;text-align:center;}
+        .mbox .v{font-size:18px;font-weight:500;}
+        .mbox .l{font-size:8px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
+        /* Bars */
+        .bars{display:flex;align-items:flex-end;gap:3px;height:100px;padding:0 4px;}
+        .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+        .bar-item{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 0.3s;}
+        .bar-label{font-size:7px;color:rgba(255,255,255,0.3);}
+        .bar-val{font-size:7px;color:rgba(255,255,255,0.5);margin-bottom:2px;}
+
+        /* Compact plan */
+        .cplan{display:flex;gap:6px;padding:0 20px;margin:8px 0;}
+        .cplan-item{flex:1;padding:10px;border-radius:14px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.1);}
+        .cplan-item .v{font-size:16px;font-weight:500;margin-top:4px;}
+        .cplan-item .l{font-size:8px;color:rgba(255,255,255,0.35);text-transform:uppercase;}
+
+        /* Status badge */
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:10px;font-weight:500;}
+        .badge-ok{background:rgba(52,211,153,0.12);color:#34D399;}
+        .badge-warn{background:rgba(251,191,36,0.12);color:#FBBF24;}
+
+        /* Activity mini */
+        .act-mini{display:flex;gap:8px;padding:0 20px;margin:6px 0;overflow-x:auto;}
+        .act-mini::-webkit-scrollbar{display:none;}
+        .act-chip{padding:8px 14px;border-radius:12px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+        .act-chip .name{font-size:12px;font-weight:500;}
+        .act-chip .kcal{font-size:11px;color:#34D399;}
+
+        /* Soll/Ist bars */
+        .si-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+        .si-label{font-size:9px;color:rgba(255,255,255,0.3);width:22px;text-align:right;flex-shrink:0;}
+        .si-track{flex:1;height:12px;background:rgba(255,255,255,0.04);border-radius:6px;position:relative;overflow:hidden;}
+        .si-soll{position:absolute;top:0;left:0;height:100%;border-right:2px dashed rgba(255,255,255,0.2);}
+        .si-ist{position:absolute;top:0;left:0;height:100%;border-radius:6px;}
+        .si-val{font-size:9px;color:rgba(255,255,255,0.5);width:40px;flex-shrink:0;}
+
+        /* Tab bar */
+        .tbar{position:absolute;bottom:0;left:0;right:0;height:85px;background:rgba(12,12,29,0.9);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);}
+        .tab{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .tab .ic{color:rgba(255,255,255,0.3);}
+        .tab.on .ic{color:#818CF8;}
+        .tab span{font-size:10px;color:rgba(255,255,255,0.3);}
+        .tab.on span{color:#818CF8;}
+        .tab-c{margin-top:-22px;}
+        .tab-c .ic{width:52px;height:52px;background:linear-gradient(135deg,#818CF8,#34D399);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white!important;box-shadow:0 4px 20px rgba(129,140,248,0.4);}
+    </style>
+</head>
+<body>
+
+<div class="sel">
+    <span>Layout:</span>
+    <button class="active" onclick="show('e')">E: Multi-Ring</button>
+    <button onclick="show('f')">F: Timeline</button>
+    <button onclick="show('g')">G: Data Dense</button>
+    <button onclick="show('h')">H: Visual Bars</button>
+</div>
+
+<div class="phone">
+<div class="notch"></div>
+<div class="scr">
+
+<!-- ============ E: Multi-Ring ============ -->
+<div class="L active" id="L-e">
+    <div class="gr">Guten Tag,</div>
+    <div class="nm">Max</div>
+
+    <!-- Time toggle -->
+    <div class="time-tabs">
+        <button class="tt active">Heute</button>
+        <button class="tt">Woche</button>
+        <button class="tt">Monat</button>
+        <button class="tt">Gesamt</button>
+    </div>
+
+    <!-- 3 Rings row -->
+    <div style="display:flex;justify-content:center;gap:12px;margin:8px 20px;">
+        <!-- Weight Ring -->
+        <div style="text-align:center;flex:1;">
+            <div style="position:relative;width:100px;height:100px;margin:0 auto;">
+                <svg viewBox="0 0 100 100" style="width:100%;height:100%;">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#818CF8" stroke-width="6"
+                            stroke-dasharray="264" stroke-dashoffset="172" stroke-linecap="round"
+                            transform="rotate(-90 50 50)"/>
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                    <div style="font-size:22px;font-weight:500;">-3.5</div>
+                    <div style="font-size:7px;color:rgba(255,255,255,0.4);">kg</div>
+                </div>
+            </div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:4px;">GEWICHT</div>
+            <div style="font-size:10px;color:#A5B4FC;">35% von Ziel</div>
+        </div>
+
+        <!-- Calories Ring -->
+        <div style="text-align:center;flex:1;">
+            <div style="position:relative;width:100px;height:100px;margin:0 auto;">
+                <svg viewBox="0 0 100 100" style="width:100%;height:100%;">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#34D399" stroke-width="6"
+                            stroke-dasharray="264" stroke-dashoffset="79" stroke-linecap="round"
+                            transform="rotate(-90 50 50)"/>
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                    <div style="font-size:18px;font-weight:500;">2.3k</div>
+                    <div style="font-size:7px;color:rgba(255,255,255,0.4);">kcal</div>
+                </div>
+            </div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:4px;">VERBRAUCH</div>
+            <div style="font-size:10px;color:#34D399;">340 aktiv</div>
+        </div>
+
+        <!-- Training Ring -->
+        <div style="text-align:center;flex:1;">
+            <div style="position:relative;width:100px;height:100px;margin:0 auto;">
+                <svg viewBox="0 0 100 100" style="width:100%;height:100%;">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#FBBF24" stroke-width="6"
+                            stroke-dasharray="264" stroke-dashoffset="53" stroke-linecap="round"
+                            transform="rotate(-90 50 50)"/>
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                    <div style="font-size:22px;font-weight:500;">4/5</div>
+                    <div style="font-size:7px;color:rgba(255,255,255,0.4);">Einheiten</div>
+                </div>
+            </div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:4px;">TRAINING</div>
+            <div style="font-size:10px;color:#FBBF24;">1 noch</div>
+        </div>
+    </div>
+
+    <!-- Compact plan as pills -->
+    <div class="cplan">
+        <div class="cplan-item">
+            <div class="l">Wochenziel</div>
+            <div class="v" style="color:#A5B4FC;">-1.0 kg</div>
+        </div>
+        <div class="cplan-item">
+            <div class="l">Defizit/Tag</div>
+            <div class="v" style="color:#34D399;">~550</div>
+        </div>
+        <div class="cplan-item">
+            <div class="l">Status</div>
+            <div class="v"><span class="badge badge-ok" style="font-size:9px;padding:2px 6px;"><i data-lucide="check" style="width:10px;height:10px;"></i> Kurs</span></div>
+        </div>
+    </div>
+
+    <!-- Weight trend bars with dates -->
+    <div class="sec"><h3>Gewichtsverlauf</h3><a>Alle →</a></div>
+    <div class="cd" style="margin:0 20px;padding:14px;">
+        <div class="bars">
+            <div class="bar-col"><div class="bar-val">90.0</div><div class="bar-item" style="height:95%;background:linear-gradient(to top,rgba(129,140,248,0.2),rgba(129,140,248,0.4));"></div><div class="bar-label">W1</div></div>
+            <div class="bar-col"><div class="bar-val">89.2</div><div class="bar-item" style="height:88%;background:linear-gradient(to top,rgba(129,140,248,0.2),rgba(129,140,248,0.4));"></div><div class="bar-label">W2</div></div>
+            <div class="bar-col"><div class="bar-val">88.0</div><div class="bar-item" style="height:78%;background:linear-gradient(to top,rgba(129,140,248,0.2),rgba(129,140,248,0.5));"></div><div class="bar-label">W3</div></div>
+            <div class="bar-col"><div class="bar-val" style="color:#34D399;">86.5</div><div class="bar-item" style="height:65%;background:linear-gradient(to top,#818CF8,#34D399);box-shadow:0 0 8px rgba(52,211,153,0.3);"></div><div class="bar-label" style="color:#A5B4FC;">W4</div></div>
+            <div class="bar-col"><div class="bar-val" style="color:rgba(255,255,255,0.15);">—</div><div class="bar-item" style="height:10%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.08);"></div><div class="bar-label">W5</div></div>
+            <div class="bar-col"><div class="bar-val" style="color:rgba(255,255,255,0.15);">—</div><div class="bar-item" style="height:10%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.08);"></div><div class="bar-label">W6</div></div>
+        </div>
+        <!-- Soll line indicator -->
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:8px;color:rgba(255,255,255,0.25);">
+            <span>Start: 90 kg</span>
+            <span style="border-top:1px dashed rgba(251,113,133,0.4);padding-top:2px;color:rgba(251,113,133,0.5);">Ziel: 80 kg</span>
+        </div>
+    </div>
+
+    <!-- Streak -->
+    <div style="display:flex;align-items:center;gap:10px;margin:12px 20px;padding:10px 14px;border-radius:14px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.1);">
+        <div style="font-size:20px;">🔥</div>
+        <div style="font-size:18px;font-weight:500;">12</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.4);">Tage in Folge</div>
+        <div style="margin-left:auto;display:flex;gap:2px;">
+            <div style="width:16px;height:16px;border-radius:3px;background:#34D399;font-size:6px;color:white;display:flex;align-items:center;justify-content:center;">M</div>
+            <div style="width:16px;height:16px;border-radius:3px;background:#34D399;font-size:6px;color:white;display:flex;align-items:center;justify-content:center;">D</div>
+            <div style="width:16px;height:16px;border-radius:3px;background:#34D399;font-size:6px;color:white;display:flex;align-items:center;justify-content:center;">M</div>
+            <div style="width:16px;height:16px;border-radius:3px;background:#34D399;font-size:6px;color:white;display:flex;align-items:center;justify-content:center;">D</div>
+            <div style="width:16px;height:16px;border-radius:3px;background:#34D399;font-size:6px;color:white;display:flex;align-items:center;justify-content:center;">F</div>
+            <div style="width:16px;height:16px;border-radius:3px;border:1.5px solid #818CF8;font-size:6px;color:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;">S</div>
+            <div style="width:16px;height:16px;border-radius:3px;background:rgba(255,255,255,0.04);font-size:6px;color:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">S</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ F: Timeline ============ -->
+<div class="L" id="L-f">
+    <div class="gr">Guten Tag,</div>
+    <div class="nm">Max</div>
+
+    <div class="time-tabs">
+        <button class="tt">Heute</button>
+        <button class="tt active">Woche</button>
+        <button class="tt">Monat</button>
+        <button class="tt">Gesamt</button>
+    </div>
+
+    <!-- Big number + sparkline -->
+    <div style="margin:8px 20px;display:flex;align-items:center;gap:16px;">
+        <div>
+            <div style="font-size:42px;font-weight:500;background:linear-gradient(135deg,#818CF8,#34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">86.5</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);">kg aktuell</div>
+        </div>
+        <div style="flex:1;height:50px;display:flex;align-items:flex-end;gap:2px;">
+            <div style="flex:1;height:90%;border-radius:3px;background:rgba(129,140,248,0.15);"></div>
+            <div style="flex:1;height:85%;border-radius:3px;background:rgba(129,140,248,0.2);"></div>
+            <div style="flex:1;height:88%;border-radius:3px;background:rgba(129,140,248,0.2);"></div>
+            <div style="flex:1;height:80%;border-radius:3px;background:rgba(129,140,248,0.25);"></div>
+            <div style="flex:1;height:75%;border-radius:3px;background:rgba(129,140,248,0.3);"></div>
+            <div style="flex:1;height:70%;border-radius:3px;background:rgba(129,140,248,0.35);"></div>
+            <div style="flex:1;height:65%;border-radius:3px;background:linear-gradient(to top,#818CF8,#34D399);border-radius:3px;box-shadow:0 0 6px rgba(52,211,153,0.3);"></div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:500;color:#34D399;">-0.8</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);">diese Woche</div>
+        </div>
+    </div>
+
+    <!-- Soll/Ist comparison bars -->
+    <div class="cd" style="margin:10px 20px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:500;">Soll vs. Ist</div>
+            <span class="badge badge-ok"><i data-lucide="check" style="width:10px;height:10px;"></i> Auf Kurs</span>
+        </div>
+        <div class="si-row">
+            <div class="si-label">W1</div>
+            <div class="si-track">
+                <div class="si-soll" style="width:10%;"></div>
+                <div class="si-ist" style="width:12%;background:linear-gradient(90deg,#34D399,#34D399aa);"></div>
+            </div>
+            <div class="si-val" style="color:#34D399;">-1.2</div>
+        </div>
+        <div class="si-row">
+            <div class="si-label">W2</div>
+            <div class="si-track">
+                <div class="si-soll" style="width:20%;"></div>
+                <div class="si-ist" style="width:22%;background:linear-gradient(90deg,#34D399,#34D399aa);"></div>
+            </div>
+            <div class="si-val" style="color:#34D399;">-2.2</div>
+        </div>
+        <div class="si-row">
+            <div class="si-label">W3</div>
+            <div class="si-track">
+                <div class="si-soll" style="width:30%;"></div>
+                <div class="si-ist" style="width:28%;background:linear-gradient(90deg,#FBBF24,#FBBF24aa);"></div>
+            </div>
+            <div class="si-val" style="color:#FBBF24;">-2.8</div>
+        </div>
+        <div class="si-row" style="background:rgba(129,140,248,0.06);border-radius:8px;padding:6px 0;margin:0 -4px;padding-left:4px;padding-right:4px;">
+            <div class="si-label" style="color:#A5B4FC;font-weight:500;">W4</div>
+            <div class="si-track">
+                <div class="si-soll" style="width:40%;"></div>
+                <div class="si-ist" style="width:35%;background:linear-gradient(90deg,#FBBF24,#FBBF24aa);"></div>
+            </div>
+            <div class="si-val" style="color:#FBBF24;">-3.5</div>
+        </div>
+        <div class="si-row">
+            <div class="si-label" style="color:rgba(255,255,255,0.15);">W5</div>
+            <div class="si-track"><div class="si-soll" style="width:50%;"></div></div>
+            <div class="si-val" style="color:rgba(255,255,255,0.15);">—</div>
+        </div>
+    </div>
+
+    <!-- 4 metrics compact -->
+    <div class="mstrip">
+        <div class="mbox cd"><div class="v" style="color:#FBBF24;">12</div><div class="l">Streak</div></div>
+        <div class="mbox cd"><div class="v" style="color:#34D399;">2.3k</div><div class="l">kcal</div></div>
+        <div class="mbox cd"><div class="v" style="color:#A5B4FC;">4</div><div class="l">Trainings</div></div>
+        <div class="mbox cd"><div class="v">85.7</div><div class="l">Ø 7 Tage</div></div>
+    </div>
+
+    <!-- Recent activities -->
+    <div class="sec"><h3>Letzte Aktivitäten</h3><a>Alle →</a></div>
+    <div class="act-mini">
+        <div class="act-chip cd"><i data-lucide="footprints" style="width:14px;height:14px;color:#34D399;"></i><span class="name">Morgenlauf</span><span class="kcal">342</span></div>
+        <div class="act-chip cd"><i data-lucide="bike" style="width:14px;height:14px;color:#34D399;"></i><span class="name">Radtour</span><span class="kcal">520</span></div>
+        <div class="act-chip cd"><i data-lucide="dumbbell" style="width:14px;height:14px;color:#FBBF24;"></i><span class="name">Kraft</span><span class="kcal">280</span></div>
+    </div>
+</div>
+
+<!-- ============ G: Data Dense ============ -->
+<div class="L" id="L-g">
+    <div class="gr">Guten Tag,</div>
+    <div class="nm">Max</div>
+
+    <div class="time-tabs">
+        <button class="tt active">Heute</button>
+        <button class="tt">Woche</button>
+        <button class="tt">Monat</button>
+        <button class="tt">Gesamt</button>
+    </div>
+
+    <!-- Hero with ring and side stats -->
+    <div style="display:flex;align-items:center;gap:14px;margin:10px 20px;">
+        <div style="position:relative;width:120px;height:120px;flex-shrink:0;">
+            <svg viewBox="0 0 120 120" style="width:100%;height:100%;">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="url(#gRing)" stroke-width="8"
+                        stroke-dasharray="327" stroke-dashoffset="212" stroke-linecap="round"
+                        transform="rotate(-90 60 60)"/>
+                <defs><linearGradient id="gRing"><stop offset="0%" style="stop-color:#818CF8"/><stop offset="100%" style="stop-color:#34D399"/></linearGradient></defs>
+            </svg>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div style="font-size:28px;font-weight:500;">35%</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.4);">ERREICHT</div>
+            </div>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;">Aktuell</div>
+            <div style="font-size:28px;font-weight:500;">86.5 <span style="font-size:14px;color:rgba(255,255,255,0.4);">kg</span></div>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <div><div style="font-size:14px;font-weight:500;color:#34D399;">-3.5</div><div style="font-size:7px;color:rgba(255,255,255,0.3);">VERLOREN</div></div>
+                <div><div style="font-size:14px;font-weight:500;color:#FB7185;">-6.5</div><div style="font-size:7px;color:rgba(255,255,255,0.3);">NOCH</div></div>
+            </div>
+            <div class="badge badge-ok" style="margin-top:6px;"><i data-lucide="trending-down" style="width:10px;height:10px;"></i> Auf Kurs</div>
+        </div>
+    </div>
+
+    <!-- Daily bars (Kalorien) -->
+    <div class="cd" style="margin:10px 20px;padding:14px;">
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Kalorien diese Woche</div>
+        <div class="bars" style="height:70px;">
+            <div class="bar-col"><div class="bar-val">680</div><div class="bar-item" style="height:68%;background:linear-gradient(to top,rgba(52,211,153,0.2),rgba(52,211,153,0.5));"></div><div class="bar-label">Mo</div></div>
+            <div class="bar-col"><div class="bar-val">820</div><div class="bar-item" style="height:82%;background:linear-gradient(to top,rgba(52,211,153,0.2),rgba(52,211,153,0.5));"></div><div class="bar-label">Di</div></div>
+            <div class="bar-col"><div class="bar-val">520</div><div class="bar-item" style="height:52%;background:linear-gradient(to top,rgba(52,211,153,0.2),rgba(52,211,153,0.5));"></div><div class="bar-label">Mi</div></div>
+            <div class="bar-col"><div class="bar-val">940</div><div class="bar-item" style="height:94%;background:linear-gradient(to top,rgba(52,211,153,0.3),rgba(52,211,153,0.6));"></div><div class="bar-label">Do</div></div>
+            <div class="bar-col"><div class="bar-val">720</div><div class="bar-item" style="height:72%;background:linear-gradient(to top,rgba(52,211,153,0.2),rgba(52,211,153,0.5));"></div><div class="bar-label">Fr</div></div>
+            <div class="bar-col"><div class="bar-val" style="color:#34D399;">340</div><div class="bar-item" style="height:34%;background:linear-gradient(to top,#34D399,#34D399aa);box-shadow:0 0 6px rgba(52,211,153,0.3);"></div><div class="bar-label" style="color:#A5B4FC;">Sa</div></div>
+            <div class="bar-col"><div class="bar-val" style="color:rgba(255,255,255,0.15);">—</div><div class="bar-item" style="height:5%;background:rgba(255,255,255,0.04);"></div><div class="bar-label">So</div></div>
+        </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="mstrip">
+        <div class="mbox cd"><div class="v" style="color:#FBBF24;">🔥12</div><div class="l">Streak</div></div>
+        <div class="mbox cd"><div class="v">85.7</div><div class="l">Ø 7 Tage</div></div>
+        <div class="mbox cd"><div class="v" style="color:#A5B4FC;">18.Mai</div><div class="l">Prognose</div></div>
+    </div>
+
+    <!-- Compact plan row -->
+    <div style="display:flex;gap:1px;margin:4px 20px;border-radius:14px;overflow:hidden;">
+        <div style="flex:1;padding:10px;background:rgba(129,140,248,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Wochenziel</div>
+            <div style="font-size:16px;font-weight:500;color:#A5B4FC;margin-top:2px;">-1.0</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(52,211,153,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Defizit/Tag</div>
+            <div style="font-size:16px;font-weight:500;color:#34D399;margin-top:2px;">550</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(251,191,36,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Noch</div>
+            <div style="font-size:16px;font-weight:500;color:#FBBF24;margin-top:2px;">-0.5</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ H: Visual Bars ============ -->
+<div class="L" id="L-h">
+    <div class="gr">Guten Tag,</div>
+    <div class="nm">Max</div>
+
+    <div class="time-tabs">
+        <button class="tt">Heute</button>
+        <button class="tt">Woche</button>
+        <button class="tt">Monat</button>
+        <button class="tt active">Gesamt</button>
+    </div>
+
+    <!-- Full-width visual hero -->
+    <div style="margin:8px 20px;padding:20px;border-radius:24px;background:linear-gradient(160deg,rgba(26,10,46,0.8),rgba(10,22,40,0.6));border:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+                <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);">Gesamtfortschritt</div>
+                <div style="font-size:44px;font-weight:500;background:linear-gradient(135deg,#818CF8,#34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-top:2px;">-3.5 kg</div>
+            </div>
+            <span class="badge badge-ok" style="margin-top:4px;"><i data-lucide="trending-down" style="width:10px;height:10px;"></i> Kurs</span>
+        </div>
+
+        <!-- 10-week progress bars -->
+        <div style="display:flex;gap:3px;margin-top:16px;align-items:flex-end;height:60px;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:48px;border-radius:4px;background:linear-gradient(to top,rgba(52,211,153,0.3),rgba(52,211,153,0.6));"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.3);margin-top:3px;">1</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:44px;border-radius:4px;background:linear-gradient(to top,rgba(52,211,153,0.3),rgba(52,211,153,0.6));"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.3);margin-top:3px;">2</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:36px;border-radius:4px;background:linear-gradient(to top,rgba(251,191,36,0.3),rgba(251,191,36,0.5));"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.3);margin-top:3px;">3</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:30px;border-radius:4px;background:linear-gradient(to top,#818CF8,#34D399);box-shadow:0 0 8px rgba(52,211,153,0.3);"></div>
+                <div style="font-size:6px;color:#A5B4FC;font-weight:500;margin-top:3px;">4</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">5</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">6</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">7</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">8</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">9</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;height:10px;border-radius:4px;border:1px dashed rgba(255,255,255,0.08);"></div>
+                <div style="font-size:6px;color:rgba(255,255,255,0.15);margin-top:3px;">10</div>
+            </div>
+        </div>
+
+        <!-- Bottom metrics -->
+        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+            <div><div style="font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Start</div><div style="font-size:16px;font-weight:500;">90.0</div></div>
+            <div><div style="font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Aktuell</div><div style="font-size:16px;font-weight:500;color:#34D399;">86.5</div></div>
+            <div><div style="font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Ziel</div><div style="font-size:16px;font-weight:500;color:#FB7185;">80.0</div></div>
+            <div><div style="font-size:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;">Prognose</div><div style="font-size:14px;font-weight:500;color:#A5B4FC;">18. Mai</div></div>
+        </div>
+    </div>
+
+    <!-- Three rings: Kalorien, Training, Streak -->
+    <div style="display:flex;gap:8px;margin:10px 20px;">
+        <div class="cd" style="flex:1;padding:12px;text-align:center;">
+            <div style="position:relative;width:60px;height:60px;margin:0 auto;">
+                <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/><circle cx="30" cy="30" r="25" fill="none" stroke="#34D399" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="47" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:500;">2.3k</div>
+            </div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">KCAL HEUTE</div>
+        </div>
+        <div class="cd" style="flex:1;padding:12px;text-align:center;">
+            <div style="position:relative;width:60px;height:60px;margin:0 auto;">
+                <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/><circle cx="30" cy="30" r="25" fill="none" stroke="#A5B4FC" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="31" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:500;">4/5</div>
+            </div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">TRAININGS</div>
+        </div>
+        <div class="cd" style="flex:1;padding:12px;text-align:center;">
+            <div style="position:relative;width:60px;height:60px;margin:0 auto;">
+                <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/><circle cx="30" cy="30" r="25" fill="none" stroke="#FBBF24" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:500;">🔥12</div>
+            </div>
+            <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;">STREAK</div>
+        </div>
+    </div>
+
+    <!-- Compact plan -->
+    <div style="display:flex;gap:1px;margin:8px 20px;border-radius:14px;overflow:hidden;">
+        <div style="flex:1;padding:10px;background:rgba(129,140,248,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.25);text-transform:uppercase;">Ziel/Wo</div>
+            <div style="font-size:16px;font-weight:500;color:#A5B4FC;margin-top:2px;">-1.0</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(52,211,153,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.25);text-transform:uppercase;">Defizit</div>
+            <div style="font-size:16px;font-weight:500;color:#34D399;margin-top:2px;">550</div>
+        </div>
+        <div style="flex:1;padding:10px;background:rgba(251,191,36,0.08);text-align:center;">
+            <div style="font-size:7px;color:rgba(255,255,255,0.25);text-transform:uppercase;">Ø 7 Tage</div>
+            <div style="font-size:16px;font-weight:500;color:#FBBF24;margin-top:2px;">85.7</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="tbar">
+    <div class="tab on"><div class="ic"><i data-lucide="layout-dashboard" style="width:22px;height:22px;"></i></div><span>Home</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="activity" style="width:22px;height:22px;"></i></div><span>Training</span></div>
+    <div class="tab tab-c"><div class="ic"><i data-lucide="scale" style="width:24px;height:24px;"></i></div><span style="margin-top:6px;">Wiegen</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="users" style="width:22px;height:22px;"></i></div><span>Team</span></div>
+    <div class="tab"><div class="ic"><i data-lucide="user-circle" style="width:22px;height:22px;"></i></div><span>Profil</span></div>
+</div>
+</div>
+
+<script>
+function show(id) {
+    document.querySelectorAll('.L').forEach(l => l.classList.remove('active'));
+    document.getElementById('L-' + id).classList.add('active');
+    document.querySelectorAll('.sel button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    lucide.createIcons();
+}
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+</script>
+</body>
+</html>
