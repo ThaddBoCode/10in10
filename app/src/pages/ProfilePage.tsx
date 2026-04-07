@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { LogOut, Palette, Link2, Link2Off } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { startStravaAuth, saveStravaTokens, isStravaConnected, disconnectStrava } from "../lib/strava";
+import { getWeeklyGoals, setWeeklyGoals } from "../lib/firestore";
 
 const themes = [
   { id: "glass", label: "Glass" },
@@ -18,6 +19,9 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [stravaConnected, setStravaConnected] = useState(false);
+  const [trainGoal, setTrainGoal] = useState("5");
+  const [calGoal, setCalGoal] = useState("3500");
+  const [goalsSaved, setGoalsSaved] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -33,7 +37,20 @@ export default function ProfilePage() {
     } else {
       isStravaConnected(user.uid).then(setStravaConnected);
     }
+
+    // Load weekly goals
+    getWeeklyGoals(user.uid).then((g) => {
+      setTrainGoal(String(g.trainingsPerWeek || 5));
+      setCalGoal(String(g.caloriesPerWeek || 3500));
+    });
   }, [user, searchParams, setSearchParams]);
+
+  const handleSaveGoals = async () => {
+    if (!user) return;
+    await setWeeklyGoals(user.uid, { trainingsPerWeek: parseInt(trainGoal), caloriesPerWeek: parseInt(calGoal) });
+    setGoalsSaved(true);
+    setTimeout(() => setGoalsSaved(false), 2000);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -88,6 +105,31 @@ export default function ProfilePage() {
                 <Link2 size={14} /> Verbinden
               </button>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Wochenziele */}
+      <div className="mx-5 mt-6">
+        <p className="font-body mb-2.5 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Wochenziele</p>
+        <div className="overflow-hidden rounded-[14px]" style={{ border: "1px solid var(--border)" }}>
+          <div style={{ padding: 16, background: "var(--bg-card)" }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label className="font-body" style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Trainings / Woche</label>
+                <input type="number" value={trainGoal} onChange={(e) => setTrainGoal(e.target.value)}
+                  className="font-numbers" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, background: "var(--bg-input, var(--bg))", border: "1px solid var(--border)", color: "var(--text)", fontSize: 16, outline: "none" }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label className="font-body" style={{ fontSize: 11, color: "var(--text-muted)", display: "block", marginBottom: 4 }}>Kalorien / Woche</label>
+                <input type="number" value={calGoal} onChange={(e) => setCalGoal(e.target.value)}
+                  className="font-numbers" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, background: "var(--bg-input, var(--bg))", border: "1px solid var(--border)", color: "var(--text)", fontSize: 16, outline: "none" }} />
+              </div>
+            </div>
+            <button onClick={handleSaveGoals}
+              className="font-body" style={{ width: "100%", padding: "10px", borderRadius: 10, background: goalsSaved ? "var(--success)" : "var(--primary)", color: "white", border: "none", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+              {goalsSaved ? "Gespeichert ✓" : "Ziele speichern"}
+            </button>
           </div>
         </div>
       </div>

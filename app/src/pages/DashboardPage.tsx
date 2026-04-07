@@ -6,7 +6,7 @@ import { WeightChart } from "../components/charts/WeightChart";
 import { DetailOverlay } from "../components/dashboard/DetailOverlay";
 import { calculateBMR, getActivityMultiplier } from "../lib/calories";
 import { projectCompletionDate } from "../lib/progress";
-import { getActiveGoal, createGoal, getWeights, getStreak, getActivities } from "../lib/firestore";
+import { getActiveGoal, createGoal, getWeights, getStreak, getActivities, getWeeklyGoals, getTodayMeals } from "../lib/firestore";
 
 type Goal = { id: string; startWeight: number; targetWeight: number; startDate: string; endDate: string; weeks: number };
 type WeightEntry = { date: string; weight: number };
@@ -22,6 +22,9 @@ export default function DashboardPage() {
   const [todayTrainings, setTodayTrainings] = useState(0);
   const [weekTrainings, setWeekTrainings] = useState(0);
   const [weekCalories, setWeekCalories] = useState(0);
+  const [weekTrainingGoal, setWeekTrainingGoal] = useState(5);
+  const [weekCalorieGoal, setWeekCalorieGoal] = useState(3500);
+  const [todayEaten, setTodayEaten] = useState(0);
 
   const [startWeight, setStartWeight] = useState("90");
   const [targetWeight, setTargetWeight] = useState("80");
@@ -39,11 +42,29 @@ export default function DashboardPage() {
       setWeekDays(s.weekDays || []);
 
       // Activities
-      const acts = (await getActivities(user.uid, 7)) as unknown as { date: string; calories: number }[];
-      const today = new Date().toISOString().split("T")[0];
-      setTodayTrainings(acts.filter(a => a.date?.startsWith(today)).length);
-      setWeekTrainings(acts.length);
-      setWeekCalories(acts.reduce((s, a) => s + (a.calories || 0), 0));
+      const acts = (await getActivities(user.uid, 30)) as unknown as { date: string; calories: number }[];
+      console.log("Dashboard activities:", acts.length, acts);
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const thisWeekActs = acts.filter(a => {
+        const d = new Date(a.date);
+        return d >= weekAgo;
+      });
+      console.log("Today:", today, "WeekActs:", thisWeekActs.length, "TodayActs:", acts.filter(a => a.date?.substring(0, 10) === today).length);
+      setTodayTrainings(acts.filter(a => a.date?.substring(0, 10) === today).length);
+      setWeekTrainings(thisWeekActs.length);
+      setWeekCalories(thisWeekActs.reduce((s, a) => s + (a.calories || 0), 0));
+
+      // Weekly goals
+      const goals = await getWeeklyGoals(user.uid);
+      setWeekTrainingGoal(goals.trainingsPerWeek || 5);
+      setWeekCalorieGoal(goals.caloriesPerWeek || 3500);
+
+      // Today's meals
+      const meals = (await getTodayMeals(user.uid)) as unknown as { calories: number }[];
+      setTodayEaten(meals.reduce((s, m) => s + (m.calories || 0), 0));
     };
     load();
   }, [user]);
@@ -73,9 +94,7 @@ export default function DashboardPage() {
   const avgWeeklyLoss = currentWeek > 0 ? totalLoss / currentWeek : 0;
   const projectedDate = goal && avgWeeklyLoss > 0 ? projectCompletionDate(currentWeight, goal.targetWeight, avgWeeklyLoss) : null;
 
-  // Week training goal (hardcoded 5 for now, later from profile)
-  const weekTrainingGoal = 5;
-  const weekCalorieGoal = 3500;
+  const todayDeficit = totalCal - todayEaten;
 
   if (showSetup) {
     return (
@@ -134,12 +153,14 @@ export default function DashboardPage() {
           <div style={{ position: "relative", width: 72, height: 72 }}>
             <svg viewBox="0 0 72 72" style={{ width: "100%", height: "100%" }}>
               <circle cx="36" cy="36" r="30" fill="none" stroke="var(--border)" strokeWidth="4" />
-              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--primary-light)" strokeWidth="4"
-                strokeDasharray="188" strokeDashoffset={188 - (188 * 0.75)} strokeLinecap="round"
+              <circle cx="36" cy="36" r="30" fill="none" stroke={todayDeficit > 0 ? "var(--primary-light)" : "var(--danger)"} strokeWidth="4"
+                strokeDasharray="188" strokeDashoffset={todayEaten > 0 ? 188 - (188 * Math.min(todayDeficit / totalCal, 1)) : 188 - (188 * 0.75)} strokeLinecap="round"
                 transform="rotate(-90 36 36)" />
             </svg>
             <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
-              <div className="font-numbers" style={{ fontSize: 12, fontWeight: 500, color: "var(--primary-light)" }}>-{deficitPerDay}</div>
+              <div className="font-numbers" style={{ fontSize: 12, fontWeight: 500, color: todayDeficit > 0 ? "var(--primary-light)" : "var(--danger)" }}>
+                {todayEaten > 0 ? (todayDeficit > 0 ? `-${todayDeficit}` : `+${Math.abs(todayDeficit)}`) : `-${deficitPerDay}`}
+              </div>
               <div style={{ fontSize: 6, color: "var(--text-muted)" }}>Defizit</div>
             </div>
           </div>
@@ -154,7 +175,7 @@ export default function DashboardPage() {
         </div>
         <div style={{ flex: 1, padding: 10, background: "color-mix(in srgb, var(--danger) 6%, transparent)", textAlign: "center" }}>
           <div className="font-body" style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "uppercase" }}>Gegessen</div>
-          <div className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--danger)", marginTop: 2 }}>—</div>
+          <div className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--danger)", marginTop: 2 }}>{todayEaten > 0 ? todayEaten.toLocaleString("de-DE") : "—"}</div>
         </div>
         <div style={{ flex: 1, padding: 10, background: "color-mix(in srgb, var(--primary) 6%, transparent)", textAlign: "center" }}>
           <div className="font-body" style={{ fontSize: 7, color: "var(--text-muted)", textTransform: "uppercase" }}>Trainings</div>

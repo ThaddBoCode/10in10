@@ -1,11 +1,11 @@
 import { useLocation, Link } from "react-router-dom";
-import { LayoutDashboard, Activity, Scale, Users, UserCircle } from "lucide-react";
+import { LayoutDashboard, Activity, Scale, UtensilsCrossed, UserCircle } from "lucide-react";
 
 const tabs = [
   { href: "/", icon: LayoutDashboard, label: "Home" },
-  { href: "/activity", icon: Activity, label: "Training" },
+  { href: "/food", icon: UtensilsCrossed, label: "Essen" },
   { href: "/weight", icon: Scale, label: "Wiegen", center: true },
-  { href: "/team", icon: Users, label: "Team" },
+  { href: "/activity", icon: Activity, label: "Training" },
   { href: "/profile", icon: UserCircle, label: "Profil" },
 ];
 

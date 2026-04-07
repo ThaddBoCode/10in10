@@ -9,6 +9,7 @@ import ActivityPage from "./pages/ActivityPage";
 import TeamPage from "./pages/TeamPage";
 import ChartsPage from "./pages/ChartsPage";
 import ProfilePage from "./pages/ProfilePage";
+import FoodPage from "./pages/FoodPage";
 import { Scale } from "lucide-react";
 import "./index.css";
 
@@ -45,6 +46,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>} />
+      <Route path="/food" element={<ProtectedRoute><AppLayout><FoodPage /></AppLayout></ProtectedRoute>} />
       <Route path="/weight" element={<ProtectedRoute><AppLayout><WeightPage /></AppLayout></ProtectedRoute>} />
       <Route path="/activity" element={<ProtectedRoute><AppLayout><ActivityPage /></AppLayout></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><AppLayout><TeamPage /></AppLayout></ProtectedRoute>} />

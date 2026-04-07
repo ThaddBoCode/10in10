@@ -1,15 +1,24 @@
 import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs,
+  collection, doc, addDoc, setDoc, getDoc, getDocs, deleteDoc,
   query, where, orderBy, limit, updateDoc, serverTimestamp,
   type DocumentData,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
+// Helper: local date string (YYYY-MM-DD) instead of UTC
+function localDateStr(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function localTimeStr(d: Date = new Date()): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
 // =================== WEIGHT ===================
 export async function addWeight(userId: string, weight: number) {
   const now = new Date();
-  const date = now.toISOString().split("T")[0];
-  const time = now.toTimeString().split(" ")[0].slice(0, 5);
+  const date = localDateStr(now);
+  const time = localTimeStr(now);
 
   const ref = await addDoc(collection(db, "users", userId, "weights"), {
     weight, date, time, createdAt: serverTimestamp(),
@@ -23,41 +32,45 @@ export async function addWeight(userId: string, weight: number) {
 async function recalcLowest(userId: string, date: string) {
   const q = query(
     collection(db, "users", userId, "weights"),
-    where("date", "==", date),
-    orderBy("weight", "asc")
+    where("date", "==", date)
   );
   const snap = await getDocs(q);
+  // Sort client-side by weight
+  const sorted = [...snap.docs].sort((a, b) => a.data().weight - b.data().weight);
   let first = true;
-  for (const d of snap.docs) {
+  for (const d of sorted) {
     await updateDoc(d.ref, { isLowest: first });
     first = false;
   }
 }
 
 export async function getTodayWeights(userId: string) {
-  const date = new Date().toISOString().split("T")[0];
+  const date = localDateStr();
   const q = query(
     collection(db, "users", userId, "weights"),
-    where("date", "==", date),
-    orderBy("time", "asc")
+    where("date", "==", date)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  // Sort client-side by time
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a: DocumentData, b: DocumentData) => (a.time || "").localeCompare(b.time || ""));
 }
 
 export async function getWeights(userId: string, days = 30) {
   const since = new Date();
   since.setDate(since.getDate() - days);
-  const sinceStr = since.toISOString().split("T")[0];
+  const sinceStr = localDateStr(since);
 
+  // Simple query without composite index, filter client-side
   const q = query(
     collection(db, "users", userId, "weights"),
-    where("isLowest", "==", true),
-    where("date", ">=", sinceStr),
     orderBy("date", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((w: DocumentData) => w.isLowest === true && w.date >= sinceStr);
 }
 
 // =================== GOALS ===================
@@ -191,19 +204,17 @@ export async function getTeamDetail(teamId: string, currentUserId: string) {
     const isMe = uid === currentUserId;
     const showWeight = isMe || privacy.weightVisible !== false;
 
-    // Get weight loss
+    // Get weight loss - simple query, filter client-side
     let weightLoss = 0;
     let currentWeight = null;
     if (showWeight) {
-      const wq = query(collection(db, "users", uid, "weights"), where("isLowest", "==", true), orderBy("date", "desc"), limit(1));
+      const wq = query(collection(db, "users", uid, "weights"), orderBy("date", "desc"));
       const wSnap = await getDocs(wq);
-      if (!wSnap.empty) {
-        currentWeight = wSnap.docs[0].data().weight;
-        const firstQ = query(collection(db, "users", uid, "weights"), where("isLowest", "==", true), orderBy("date", "asc"), limit(1));
-        const firstSnap = await getDocs(firstQ);
-        if (!firstSnap.empty) {
-          weightLoss = Math.round((firstSnap.docs[0].data().weight - currentWeight) * 10) / 10;
-        }
+      const lowestEntries = wSnap.docs.map(d => d.data()).filter(d => d.isLowest === true);
+      if (lowestEntries.length > 0) {
+        currentWeight = lowestEntries[0].weight;
+        const firstWeight = lowestEntries[lowestEntries.length - 1].weight;
+        weightLoss = Math.round((firstWeight - currentWeight) * 10) / 10;
       }
     }
 
@@ -243,12 +254,12 @@ export async function getStreak(userId: string) {
 
   let streak = 0;
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = localDateStr(today);
 
   for (let i = 0; i < 365; i++) {
     const check = new Date(today);
     check.setDate(check.getDate() - i);
-    const dateStr = check.toISOString().split("T")[0];
+    const dateStr = localDateStr(check);
     if (dates.includes(dateStr)) { streak++; }
     else if (i === 0) { continue; }
     else { break; }
@@ -259,13 +270,58 @@ export async function getStreak(userId: string) {
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - mondayOffset + i);
-    const dateStr = d.toISOString().split("T")[0];
+    const dateStr = localDateStr(d);
     weekDays.push({
       label: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"][i],
       logged: dates.includes(dateStr),
-      isToday: dateStr === today.toISOString().split("T")[0],
+      isToday: dateStr === todayStr,
     });
   }
 
   return { streak, weekDays };
+}
+
+// =================== WEEKLY GOALS ===================
+export async function getWeeklyGoals(userId: string) {
+  const d = await getDoc(doc(db, "users", userId, "settings", "weeklyGoals"));
+  return d.exists() ? d.data() : { trainingsPerWeek: 5, caloriesPerWeek: 3500 };
+}
+
+export async function setWeeklyGoals(userId: string, goals: { trainingsPerWeek: number; caloriesPerWeek: number }) {
+  await setDoc(doc(db, "users", userId, "settings", "weeklyGoals"), goals);
+}
+
+// =================== MEALS ===================
+export async function addMeal(userId: string, name: string, calories: number, category: string) {
+  const now = new Date();
+  return addDoc(collection(db, "users", userId, "meals"), {
+    name, calories, category,
+    date: localDateStr(now),
+    time: localTimeStr(now),
+    createdAt: serverTimestamp(),
+  });
+}
+
+export async function getTodayMeals(userId: string) {
+  const date = localDateStr();
+  const q = query(collection(db, "users", userId, "meals"), where("date", "==", date));
+  const snap = await getDocs(q);
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a: DocumentData, b: DocumentData) => (a.time || "").localeCompare(b.time || ""));
+}
+
+export async function getMeals(userId: string, days = 7) {
+  const q = query(collection(db, "users", userId, "meals"), orderBy("date", "desc"));
+  const snap = await getDocs(q);
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const sinceStr = localDateStr(since);
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((m: DocumentData) => m.date >= sinceStr);
+}
+
+export async function deleteMeal(userId: string, mealId: string) {
+  await deleteDoc(doc(db, "users", userId, "meals", mealId));
 }

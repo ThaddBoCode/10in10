@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Check, Info, Star } from "lucide-react";
 import { useAuth } from "../components/AuthProvider";
 import { addWeight, getTodayWeights, getWeights } from "../lib/firestore";
@@ -18,8 +18,6 @@ export default function WeightPage() {
   const [recentDays, setRecentDays] = useState<Entry[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const itemHeight = 50;
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -32,7 +30,6 @@ export default function WeightPage() {
     setTodayEntries(todayList);
     setRecentDays(historyList);
 
-    // Set picker to last known weight
     if (todayList.length > 0) {
       const lowest = todayList.reduce((min: Entry, e: Entry) => e.weight < min.weight ? e : min, todayList[0]);
       setCurrentWeight(lowest.weight);
@@ -43,19 +40,8 @@ export default function WeightPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Scroll to current weight on mount
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    const index = Math.round((120 - currentWeight) * 10);
-    scrollRef.current.scrollTop = index * itemHeight - scrollRef.current.offsetHeight / 2 + itemHeight / 2;
-  }, [currentWeight]);
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const center = scrollRef.current.scrollTop + scrollRef.current.offsetHeight / 2;
-    const index = Math.round(center / itemHeight);
-    const weight = 120 - index * 0.1;
-    setCurrentWeight(Math.round(weight * 10) / 10);
+  const adjust = (delta: number) => {
+    setCurrentWeight(prev => Math.round((prev + delta) * 10) / 10);
     setSaved(false);
   };
 
@@ -69,6 +55,11 @@ export default function WeightPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const fmtDate = (d: string) => {
+    try { return new Date(d).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }); }
+    catch { return d; }
+  };
+
   const today = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
@@ -78,85 +69,88 @@ export default function WeightPage() {
         {today}
       </p>
 
-      {/* Weight display */}
-      <p className="font-numbers mt-4 text-[72px] leading-none"
-         style={{ background: "var(--gradient-primary)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-        {currentWeight.toFixed(1)}
-      </p>
-      <p className="font-numbers text-2xl" style={{ color: "var(--text-secondary)" }}>kg</p>
+      {/* Gewicht Eingabe */}
+      <div className="card" style={{ margin: "20px 0", padding: "24px 16px", width: "100%", textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
+          {/* Minus Seite */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => adjust(-1)}
+              style={{ width: 48, height: 48, borderRadius: "50%", background: "color-mix(in srgb, var(--primary) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 20%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <span className="font-numbers" style={{ fontSize: 13, color: "var(--primary)" }}>-1</span>
+            </button>
+            <button onClick={() => adjust(-0.1)}
+              style={{ width: 48, height: 48, borderRadius: "50%", background: "color-mix(in srgb, var(--primary) 15%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <span className="font-numbers" style={{ fontSize: 11, color: "var(--primary-light)" }}>-0,1</span>
+            </button>
+          </div>
 
-      {/* Scroll picker */}
-      <div className="relative mt-5 h-[200px] w-full overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[60px]"
-             style={{ background: "linear-gradient(to bottom, var(--bg), transparent)" }} />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[60px]"
-             style={{ background: "linear-gradient(to top, var(--bg), transparent)" }} />
-        <div className="pointer-events-none absolute inset-x-[10%] top-1/2 z-[5] h-[50px] -translate-y-1/2 rounded-xl"
-             style={{ borderTop: "2px solid var(--primary)", borderBottom: "2px solid var(--primary)", background: "color-mix(in srgb, var(--primary) 8%, transparent)" }} />
+          {/* Zahl */}
+          <div style={{ minWidth: 130, padding: "0 8px" }}>
+            <div className="font-numbers" style={{
+              fontSize: 56, fontWeight: 500, lineHeight: 1, color: "var(--primary)",
+            }}>
+              {currentWeight.toFixed(1).replace(".", ",")}
+            </div>
+            <div className="font-body" style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4 }}>kg</div>
+          </div>
 
-        <div ref={scrollRef} onScroll={handleScroll}
-             className="no-scrollbar h-full overflow-y-scroll"
-             style={{ scrollSnapType: "y mandatory" }}>
-          <div style={{ height: 75 }} />
-          {Array.from({ length: 801 }, (_, i) => {
-            const w = (120 - i * 0.1).toFixed(1);
-            const isSelected = w === currentWeight.toFixed(1);
-            return (
-              <div key={w} className="flex items-center justify-center transition-all"
-                   style={{ height: itemHeight, scrollSnapAlign: "center",
-                     fontSize: isSelected ? 28 : 22,
-                     fontWeight: isSelected ? "var(--font-numbers-weight)" as unknown as number : 400,
-                     fontFamily: "var(--font-numbers)",
-                     color: isSelected ? "var(--text)" : "var(--text-muted)" }}>
-                {w}
-              </div>
-            );
-          })}
-          <div style={{ height: 75 }} />
+          {/* Plus Seite */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => adjust(0.1)}
+              style={{ width: 48, height: 48, borderRadius: "50%", background: "color-mix(in srgb, var(--primary) 15%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <span className="font-numbers" style={{ fontSize: 11, color: "var(--primary-light)" }}>+0,1</span>
+            </button>
+            <button onClick={() => adjust(1)}
+              style={{ width: 48, height: 48, borderRadius: "50%", background: "color-mix(in srgb, var(--primary) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 20%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <span className="font-numbers" style={{ fontSize: 13, color: "var(--primary)" }}>+1</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Save button */}
+      {/* Speichern */}
       <button onClick={handleSave} disabled={saving}
-        className="font-heading mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-[18px] text-[17px] font-bold transition-transform hover:-translate-y-0.5"
+        className="font-heading"
         style={{
+          width: "100%", padding: "18px", borderRadius: 16, border: "none",
           background: saved ? "var(--success)" : "var(--gradient-accent, var(--accent))",
-          color: "var(--bg)",
-          boxShadow: "var(--glow-accent)",
+          color: "var(--bg)", fontSize: 17, fontWeight: 500, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
         }}>
         <Check size={20} />
         {saving ? "Speichern..." : saved ? "Gespeichert!" : "Gewicht speichern"}
       </button>
 
-      {/* Multiple entries hint */}
-      <div className="mt-3 w-full rounded-xl p-3 text-center"
-           style={{ background: "color-mix(in srgb, var(--accent) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--accent) 15%, transparent)" }}>
-        <Info size={16} className="mx-auto mb-1" style={{ color: "var(--accent)" }} />
-        <p className="font-body text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          Du kannst <strong style={{ color: "var(--accent)" }}>mehrmals t&#228;glich</strong> wiegen.
-          F&#252;r die Auswertung z&#228;hlt der <strong style={{ color: "var(--accent)" }}>niedrigste Wert</strong>.
+      {/* Hint */}
+      <div style={{ marginTop: 12, padding: "12px 16px", borderRadius: 12, textAlign: "center",
+        background: "color-mix(in srgb, var(--accent) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--accent) 15%, transparent)" }}>
+        <Info size={16} style={{ color: "var(--accent)", margin: "0 auto 4px" }} />
+        <p className="font-body" style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
+          Du kannst <strong style={{ color: "var(--accent)" }}>mehrmals täglich</strong> wiegen.
+          Für die Auswertung zählt der <strong style={{ color: "var(--accent)" }}>niedrigste Wert</strong>.
         </p>
       </div>
 
-      {/* Today's entries */}
+      {/* Heute */}
       {todayEntries.length > 0 && (
-        <div className="mt-5 w-full">
-          <p className="font-body mb-2 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div style={{ width: "100%", marginTop: 20 }}>
+          <p className="font-body" style={{ fontSize: 12, fontWeight: 500, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
             Heute ({todayEntries.length} Messungen)
           </p>
           {todayEntries.map((e) => (
-            <div key={e.id} className="mb-1.5 flex items-center justify-between rounded-xl p-3"
-                 style={{
-                   background: e.isLowest ? "color-mix(in srgb, var(--accent) 5%, var(--bg-card))" : "var(--bg-card)",
-                   border: e.isLowest ? "1px solid color-mix(in srgb, var(--accent) 25%, transparent)" : "1px solid var(--border)",
-                 }}>
+            <div key={e.id} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "12px 16px", marginBottom: 6, borderRadius: 12,
+              background: e.isLowest ? "color-mix(in srgb, var(--accent) 5%, var(--bg-card))" : "var(--bg-card)",
+              border: e.isLowest ? "1px solid color-mix(in srgb, var(--accent) 25%, transparent)" : "1px solid var(--border)",
+            }}>
               <div>
-                <p className="font-numbers text-base font-bold" style={{ color: "var(--text)" }}>{e.weight.toFixed(1)} kg</p>
-                <p className="font-body text-xs" style={{ color: "var(--text-secondary)" }}>{e.time}</p>
+                <p className="font-numbers" style={{ fontSize: 16, fontWeight: 500, color: "var(--text)" }}>{e.weight.toFixed(1).replace(".", ",")} kg</p>
+                <p className="font-body" style={{ fontSize: 12, color: "var(--text-secondary)" }}>{e.time} Uhr</p>
               </div>
               {e.isLowest && (
-                <span className="font-body flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold"
-                      style={{ background: "color-mix(in srgb, var(--accent) 15%, transparent)", color: "var(--accent)" }}>
+                <span className="font-body" style={{ display: "flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 500,
+                  background: "color-mix(in srgb, var(--accent) 15%, transparent)", color: "var(--accent)" }}>
                   <Star size={10} /> Tageswert
                 </span>
               )}
@@ -165,30 +159,28 @@ export default function WeightPage() {
         </div>
       )}
 
-      {/* Recent days */}
+      {/* Letzte Tage */}
       {recentDays.length > 0 && (
-        <div className="mt-5 w-full">
-          <p className="font-body mb-2 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+        <div style={{ width: "100%", marginTop: 20 }}>
+          <p className="font-body" style={{ fontSize: 12, fontWeight: 500, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
             Letzte Tage
           </p>
           {recentDays.slice(0, 5).map((e, i) => {
             const prev = recentDays[i + 1];
             const change = prev ? e.weight - prev.weight : 0;
             return (
-              <div key={e.date} className="card mb-2 flex items-center justify-between p-3.5">
+              <div key={e.date} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", marginBottom: 8 }}>
                 <div>
-                  <p className="font-numbers text-lg font-bold" style={{ color: "var(--text)" }}>{e.weight.toFixed(1)} kg</p>
-                  <p className="font-body text-xs" style={{ color: "var(--text-secondary)" }}>
-                    {new Date(e.date).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}
-                  </p>
+                  <p className="font-numbers" style={{ fontSize: 18, fontWeight: 500, color: "var(--text)" }}>{e.weight.toFixed(1).replace(".", ",")} kg</p>
+                  <p className="font-body" style={{ fontSize: 12, color: "var(--text-secondary)" }}>{fmtDate(e.date)}</p>
                 </div>
                 {change !== 0 && (
-                  <span className="font-body rounded-md px-2 py-1 text-xs font-semibold"
-                        style={{
-                          background: change < 0 ? "color-mix(in srgb, var(--success) 12%, transparent)" : "color-mix(in srgb, var(--danger) 12%, transparent)",
-                          color: change < 0 ? "var(--success)" : "var(--danger)",
-                        }}>
-                    {change > 0 ? "+" : ""}{change.toFixed(1)}
+                  <span className="font-numbers" style={{
+                    padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 500,
+                    background: change < 0 ? "color-mix(in srgb, var(--success) 12%, transparent)" : "color-mix(in srgb, var(--danger) 12%, transparent)",
+                    color: change < 0 ? "var(--success)" : "var(--danger)",
+                  }}>
+                    {change > 0 ? "+" : ""}{change.toFixed(1).replace(".", ",")}
                   </span>
                 )}
               </div>
